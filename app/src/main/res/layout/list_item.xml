@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:grid="http://schemas.android.com/apk/res-auto"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="?android:attr/listPreferredItemHeight"
+        android:padding="6dip" >
+
+        <TextView
+            android:id="@+id/icon_extend"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentTop="true"
+            android:textSize="12dip"
+            android:gravity="center"
+            android:layout_marginRight="4dip"
+            android:text="@string/fa_chevron_up"/>
+
+        <ImageView
+            android:id="@+id/icon"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentTop="true"
+            android:layout_toRightOf="@id/icon_extend"
+            android:layout_marginRight="6dip"
+            android:contentDescription="TODO"
+            android:src="@drawable/mqtt_logo" />
+
+        <TextView
+            android:id="@+id/secondLine"
+            android:layout_width="wrap_content"
+            android:layout_height="26dip"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_toRightOf="@id/icon"
+            android:ellipsize="marquee"
+            android:maxLines="1"
+            android:text="Description"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/firstLine"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@id/secondLine"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:layout_alignWithParentIfMissing="true"
+            android:layout_toRightOf="@id/icon"
+            android:gravity="center_vertical"
+            android:text="Example application"
+            android:textSize="16sp" />
+
+        <Switch
+            android:id="@+id/switchButton"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"/>
+
+    </RelativeLayout>
+
+    <ScrollView
+        android:id="@+id/detailsScrollView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone">
+
+        <HorizontalScrollView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <GridLayout
+                android:id="@+id/detailsView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:columnCount="2"
+                android:rowCount="6">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_column="0"
+                    android:layout_row="0"
+                    android:layout_columnSpan="2">
+
+                    <TextView
+                        android:id="@+id/icon_package"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/fa_android"
+                        android:textSize="14sp"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginTop="10dip"
+                        android:layout_marginBottom="10dip"
+                        android:layout_marginRight="10dip"
+                        android:layout_marginLeft="10dip" />
+
+                    <TextView
+                        android:id="@+id/package_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:text="org.example.com"
+                        android:textSize="14sp"
+                        android:layout_marginRight="10dip"
+                        android:layout_marginLeft="0dip"
+                        android:layout_marginTop="10dip"
+                        android:layout_marginBottom="10dip"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_column="0"
+                    android:layout_row="1" >
+
+                    <TextView
+                        android:id="@+id/icon_auth"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/fa_hand_stop_o"
+                        android:textSize="14sp"
+                        android:textColor="@color/colorAccent"
+                        android:textStyle="bold"
+                        android:layout_marginTop="20dip"
+                        android:layout_marginBottom="10dip"
+                        android:layout_marginRight="10dip"
+                        android:layout_marginLeft="10dip"/>
+
+                    <TextView
+                        android:id="@+id/headerLine"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/details_auth_required"
+                        android:textColor="@color/colorAccent"
+                        android:textStyle="bold"
+                        android:textSize="14sp"
+                        android:layout_marginTop="20dip"
+                        android:layout_marginBottom="10dip"
+                        android:layout_marginLeft="0dip" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_column="0"
+                    android:layout_row="2" >
+
+                    <TextView
+                        android:id="@+id/icon_up"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/fa_cloud_upload"
+                        android:textSize="14sp"
+                        android:layout_margin="10dip"/>
+
+                    <TextView
+                        android:id="@+id/lblPub"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:maxLines="1"
+                        android:text="@string/details_lbl_pub"
+                        android:textSize="14sp"
+                        android:layout_marginRight="10dip"
+                        android:layout_marginLeft="0dip"
+                        android:layout_marginTop="10dip"
+                        android:layout_marginBottom="0dip"/>
+
+                </LinearLayout>
+
+
+                <TextView
+                    android:id="@+id/detailsPub"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:text="/foo/bar\n/foo/bar2"
+                    android:textSize="14sp"
+                    android:layout_marginRight="10dip"
+                    android:layout_marginLeft="32dip"
+                    android:layout_marginTop="0dip"
+                    android:layout_marginBottom="5dip"
+                    android:layout_row="3"
+                    android:layout_column="0"/>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_column="0"
+                    android:layout_row="4">
+
+                    <TextView
+                        android:id="@+id/icon_down"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/fa_cloud_download"
+                        android:textSize="14sp"
+                        android:layout_marginRight="10dip"
+                        android:layout_marginLeft="10dip"
+                        android:layout_marginTop="5dip"
+                        android:layout_marginBottom="10dip"/>
+
+                    <TextView
+                        android:id="@+id/lblSub"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:maxLines="1"
+                        android:text="@string/details_lbl_sub"
+                        android:textSize="14sp"
+                        android:layout_marginRight="10dip"
+                        android:layout_marginLeft="0dip"
+                        android:layout_marginTop="5dip"
+                        android:layout_marginBottom="0dip"/>
+
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/detailsSub"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:text="/foo/bar/foo2/bar2\n/foo/bar2"
+                    android:textSize="14sp"
+                    android:layout_marginRight="0dip"
+                    android:layout_marginLeft="32dip"
+                    android:layout_marginTop="0dip"
+                    android:layout_marginBottom="20dip"
+                    android:layout_row="5"
+                    android:layout_column="0"/>
+
+                <TextView
+                    android:id="@+id/detailsSubQos"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:text="Qos: 0\nQoS: 1"
+                    android:textSize="14sp"
+                    android:layout_marginRight="10dip"
+                    android:layout_marginLeft="10dip"
+                    android:layout_marginTop="0dip"
+                    android:layout_marginBottom="20dip"
+                    android:layout_row="5"
+                    android:layout_column="1"/>
+
+            </GridLayout>
+        </HorizontalScrollView>
+    </ScrollView>
+</LinearLayout>

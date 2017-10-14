@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="pref_array_protocol">
+        <item name="0">TCP</item>
+        <item name="1">SSL</item>
+        <item name="2">WS</item>
+        <item name="3">WSS</item>
+    </string-array>
+</resources>

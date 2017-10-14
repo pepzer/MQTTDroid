@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/action_search"
+        android:title="@string/action_search"
+        android:icon="@drawable/search_ico"
+        android:orderInCategory="100"
+        app:showAsAction="collapseActionView|always"
+        app:actionViewClass="android.support.v7.widget.SearchView" >
+    </item>
+    <item android:id="@+id/action_filter"
+        android:title="@string/action_filter"
+        android:icon="@drawable/filter_ico"
+        android:orderInCategory="100"
+        app:showAsAction="always" >
+        <menu>
+            <item
+                android:id="@+id/action_filter_allowed"
+                android:title="@string/action_filter_allowed"
+                android:checkable="true"
+                android:checked="true" />
+            <item
+                android:id="@+id/action_filter_refused"
+                android:title="@string/action_filter_refused"
+                android:checkable="true"
+                android:checked="true" />
+        </menu>
+    </item>
+    <item android:id="@+id/action_sort"
+        android:title="@string/action_sort"
+        android:orderInCategory="100"
+        android:icon="@drawable/sort_ico"
+        app:showAsAction="ifRoom" >
+        <menu>
+            <group android:id="@+id/group"
+                android:checkableBehavior="single">
+                <item
+                    android:id="@+id/action_sort_name"
+                    android:title="@string/action_sort_name"
+                    android:checked="true"/>
+                <item
+                    android:id="@+id/action_sort_package"
+                    android:title="@string/action_sort_package" />
+                <item
+                    android:id="@+id/action_sort_date"
+                    android:title="@string/action_sort_date" />
+            </group>
+        </menu>
+    </item>
+    <item android:id="@+id/action_settings"
+        android:title="@string/action_settings"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
+    <item android:id="@+id/action_about"
+        android:title="@string/action_about"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
+</menu>

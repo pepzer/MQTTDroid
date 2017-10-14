@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="org.pepzer.mqttdroid.AboutActivity"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <HorizontalScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <GridLayout
+            android:id="@+id/about_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="@dimen/activity_vertical_margin"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin"
+            android:paddingTop="@dimen/activity_vertical_margin"
+            android:columnCount="2"
+            android:rowCount="10" >
+
+            <ImageView
+                android:src="@mipmap/logo"
+                android:layout_column="0"
+                android:layout_row="0"
+                android:padding="10dip" />
+
+            <TextView
+                android:text="@string/app_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/about_app"
+                android:textSize="16sp"
+                android:layout_gravity="center|left"
+                android:padding="10dip"
+                android:layout_column="1"
+                android:layout_row="0" />
+
+            <TextView
+                android:id="@+id/icon_app_url"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:textSize="14sp"
+                android:text="@string/fa_external_link"
+                android:layout_column="0"
+                android:layout_row="1" />
+
+            <TextView
+                android:text="@string/about_app_url"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/about_app_url"
+                android:textSize="14sp"
+                android:autoLink="web"
+                android:linksClickable="true"
+                android:textIsSelectable="true"
+                android:paddingLeft="10dip"
+                android:paddingTop="0dip"
+                android:paddingRight="10dip"
+                android:paddingBottom="10dip"
+                android:layout_column="1"
+                android:layout_row="1" />
+
+            <TextView
+                android:text="@string/about_title_author"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:id="@+id/about_title_author"
+                android:textSize="14sp"
+                android:paddingLeft="10dip"
+                android:paddingTop="10dip"
+                android:paddingRight="10dip"
+                android:paddingBottom="0dp"
+                android:layout_column="0"
+                android:layout_row="2" />
+
+            <TextView
+                android:id="@+id/icon_author"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:textSize="14sp"
+                android:text="@string/fa_user"
+                android:layout_column="0"
+                android:layout_row="3" />
+
+            <TextView
+                android:text="@string/about_author"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/about_author"
+                android:textSize="14sp"
+                android:paddingLeft="10dip"
+                android:paddingTop="0dip"
+                android:paddingRight="10dip"
+                android:paddingBottom="10dip"
+                android:layout_column="1"
+                android:layout_row="3" />
+
+            <TextView
+                android:id="@+id/icon_mail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:textSize="14sp"
+                android:text="@string/fa_envelope"
+                android:layout_column="0"
+                android:layout_row="4" />
+
+            <TextView
+                android:text="@string/about_email"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/about_email"
+                android:textIsSelectable="true"
+                android:autoLink="email"
+                android:linksClickable="true"
+                android:textSize="14sp"
+                android:padding="10dip"
+                android:layout_column="1"
+                android:layout_row="4" />
+
+            <TextView
+                android:text="@string/about_title_version"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:id="@+id/about_title_version"
+                android:textSize="14sp"
+                android:paddingLeft="10dip"
+                android:paddingTop="10dip"
+                android:paddingRight="10dip"
+                android:paddingBottom="0dp"
+                android:layout_column="0"
+                android:layout_row="5" />
+
+            <TextView
+                android:text="@string/about_version"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/about_version"
+                android:textSize="14sp"
+                android:paddingLeft="10dip"
+                android:paddingTop="0dip"
+                android:paddingRight="10dip"
+                android:paddingBottom="10dip"
+                android:layout_column="1"
+                android:layout_row="6" />
+
+            <TextView
+                android:text="@string/about_title_license"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:id="@+id/about_title_license"
+                android:textSize="14sp"
+                android:paddingLeft="10dip"
+                android:paddingTop="10dip"
+                android:paddingRight="10dip"
+                android:paddingBottom="0dp"
+                android:layout_column="0"
+                android:layout_row="7" />
+
+            <TextView
+                android:text="@string/about_license"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/about_license"
+                android:textSize="14sp"
+                android:paddingLeft="10dip"
+                android:paddingTop="0dip"
+                android:paddingRight="10dip"
+                android:paddingBottom="10dip"
+                android:layout_column="1"
+                android:layout_row="8" />
+
+            <TextView
+                android:id="@+id/icon_license_url"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:textSize="14sp"
+                android:text="@string/fa_external_link"
+                android:layout_column="0"
+                android:layout_row="9" />
+
+            <TextView
+                android:text="@string/about_license_url"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/about_license_url"
+                android:textSize="14sp"
+                android:autoLink="web"
+                android:linksClickable="true"
+                android:textIsSelectable="true"
+                android:paddingLeft="10dip"
+                android:paddingTop="0dip"
+                android:paddingRight="10dip"
+                android:paddingBottom="10dip"
+                android:layout_column="1"
+                android:layout_row="9" />
+
+        </GridLayout>
+    </HorizontalScrollView>
+</ScrollView>

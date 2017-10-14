@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="fa_icon_areachart">&#xf1fe;</string>
+    <string name="fa_icon_piechart">&#xf200;</string>
+    <string name="fa_icon_linechart">&#xf201;</string>
+    <string name="fa_chevron_down">&#xf078;</string>
+    <string name="fa_chevron_up">&#xf077;</string>
+    <string name="fa_rocket">&#xf135;</string>
+    <string name="fa_globe">&#xf0ac;</string>
+    <string name="fa_send">&#xf1d8;</string>
+    <string name="fa_ban">&#xf05e;</string>
+    <string name="fa_hourglass">&#xf251;</string>
+    <string name="fa_external_link">&#xf08e;</string>
+    <string name="fa_user">&#xf007;</string>
+    <string name="fa_envelope">&#xf0e0;</string>
+    <string name="fa_cloud_upload">&#xf0ee;</string>
+    <string name="fa_cloud_download">&#xf0ed;</string>
+    <string name="fa_android">&#xf17b;</string>
+    <string name="fa_hand_stop_o">&#xf256;</string>
+    <string name="fa_filter">&#xf0b0;</string>
+    <string name="fa_sort_amount_asc">&#xf160;</string>
+</resources>

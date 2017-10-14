@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="org.pepzer.mqttdroid">
+
+    <!-- Declaring custom permissions -->
+    <permission
+        android:name="org.pepzer.mqttdroid.BIND_PROXY"
+        android:description="@string/permission_bind_proxy"
+        android:label="@string/permission_bind_proxy"
+        android:protectionLevel="dangerous" />
+    <permission
+        android:name="org.pepzer.mqttdroid.BIND_AUTH"
+        android:description="@string/permission_bind_auth"
+        android:label="@string/permission_bind_auth"
+        android:protectionLevel="dangerous" />
+    <permission
+        android:name="org.pepzer.mqttdroid.BIND_RCV"
+        android:description="@string/permission_bind_rcv"
+        android:label="@string/permission_bind_rcv"
+        android:protectionLevel="dangerous" />
+
+    <!-- Adding custom permissions -->
+    <uses-permission android:name="org.pepzer.mqttdroid.BIND_RCV" />
+
+    <!-- Adding permissions -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/logo"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+
+        <activity
+            android:name=".MainActivity"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".MqttSettingsActivity" />
+
+        <activity android:name=".AboutActivity" />
+
+        <service
+            android:name=".AuthService"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="org.pepzer.mqttdroid.BIND_AUTH"
+            android:process=":remote_auth" />
+
+        <service
+            android:name=".ProxyService"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="org.pepzer.mqttdroid.BIND_PROXY"
+            android:process=":remote_proxy" />
+
+        <!-- Declaring broadcast receiver for BOOT_COMPLETED event. -->
+        <receiver
+            android:name=".BootReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+    </application>
+
+</manifest>

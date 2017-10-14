@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+        android:title="@string/pref_mqtt_title"
+        android:key="pref_key_mqtt">
+
+        <EditTextPreference
+            android:capitalize="none"
+            android:defaultValue="@string/pref_default_client_id"
+            android:summary="@string/pref_default_client_id"
+            android:inputType="text"
+            android:key="pref_client_id"
+            android:maxLines="1"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="@string/pref_title_client_id" />
+
+        <EditTextPreference
+            android:capitalize="none"
+            android:defaultValue="@string/pref_default_username"
+            android:summary="@string/pref_default_username"
+            android:inputType="text"
+            android:key="pref_username"
+            android:maxLines="1"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="@string/pref_title_username" />
+
+        <EditTextPreference
+            android:capitalize="none"
+            android:defaultValue="@string/pref_default_password"
+            android:inputType="text"
+            android:key="pref_password"
+            android:maxLines="1"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="@string/pref_title_password" />
+
+        <ListPreference
+            android:key="pref_protocol"
+            android:title="@string/pref_title_protocol"
+            android:summary="@string/pref_default_protocol"
+            android:dialogTitle="@string/pref_title_protocol"
+            android:entries="@array/pref_array_protocol"
+            android:entryValues="@array/pref_array_protocol"
+            android:defaultValue="@string/pref_default_protocol" />
+
+        <EditTextPreference
+            android:capitalize="none"
+            android:defaultValue="@string/pref_default_broker_addr"
+            android:summary="@string/pref_default_broker_addr"
+            android:inputType="text"
+            android:key="pref_broker_addr"
+            android:maxLines="1"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="@string/pref_title_broker_addr" />
+
+        <EditTextPreference
+            android:capitalize="none"
+            android:defaultValue="@string/pref_default_broker_port"
+            android:summary="@string/pref_default_broker_port"
+            android:inputType="number"
+            android:key="pref_broker_port"
+            android:maxLines="1"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="@string/pref_title_broker_port" />
+
+        <CheckBoxPreference
+            android:key="pref_clean_session"
+            android:title="@string/pref_title_clean_session"
+            android:summary=""
+            android:defaultValue="true" />
+
+        <CheckBoxPreference
+            android:key="pref_auto_reconnect"
+            android:title="@string/pref_title_auto_reconnect"
+            android:summary=""
+            android:defaultValue="true" />
+
+        <EditTextPreference
+            android:capitalize="none"
+            android:defaultValue="@string/pref_default_keepalive"
+            android:summary="@string/pref_default_keepalive"
+            android:inputType="number"
+            android:key="pref_keepalive"
+            android:maxLines="1"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="@string/pref_title_keepalive" />
+
+        <EditTextPreference
+            android:capitalize="none"
+            android:defaultValue="@string/pref_default_compl_timeout"
+            android:summary="@string/pref_default_compl_timeout"
+            android:inputType="number"
+            android:key="pref_compl_timeout"
+            android:maxLines="1"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="@string/pref_title_compl_timeout" />
+
+        <CheckBoxPreference
+            android:key="pref_custom_ca"
+            android:title="@string/pref_title_custom_ca"
+            android:summary=""
+            android:defaultValue="false" />
+
+        <EditTextPreference
+            android:capitalize="none"
+            android:defaultValue="@string/pref_default_crt_path"
+            android:summary="@string/pref_default_crt_path"
+            android:inputType="text"
+            android:key="pref_crt_path"
+            android:maxLines="1"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="@string/pref_title_crt_path" />
+
+    </PreferenceCategory>
+</PreferenceScreen>

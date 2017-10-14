@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#f57f17</color>
+    <color name="colorBg">#ffffff</color>
+    <color name="colorSpin">#424242</color>
+    <color name="colorRun">#ffffff</color>
+    <color name="colorPending">#fff8e1</color>
+    <color name="colorStopped">#e0e0e0</color>
+    <color name="colorBusy">#e0e0e0</color>
+    <color name="colorConnected">#9ccc65</color>
+    <color name="colorDisconnected">#ffcc80</color>
+    <color name="colorAuthDetails">#ffecb3</color>
+</resources>
