@@ -41,7 +41,7 @@ For example:
 
 ### Application UI
 
-![main activity](./doc/screenshots/main.png)
+![main activity](./doc/screenshots/mqttdroid.png)
 
 During the first run the settings are shown immediately to configure the connection with the MQTT server.  
 Once configured the Proxy service could be started/stopped through the main switch on the upper left corner.  
