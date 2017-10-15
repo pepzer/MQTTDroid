@@ -14,6 +14,10 @@ Before compilation you need [Font Awesome](http://fontawesome.io/), you could do
 MQTTDroid aims to offer a single always on MQTT connection that could be shared easily, securely and efficiently among client apps.  
 For developers the goal is to offer a simple library that exposes MQTT functionalities, without a need to manage the connection and with asynchronously delivered messages using android services.
 
+## Client Application
+
+[MQTTDroidDemoClient](https://github.com/pepzer/MQTTDroidDemoClient) is a client application that could be used to test MQTTDroid and should be easy to extend.
+
 ## Architecture
 
 From the perspective of users and developers interested in writing clients, MQTTDroid could be separated in three main elements:
@@ -82,6 +86,7 @@ In particular tests are needed and the documentation is limited to this file and
 Any feedback and/or contribution is welcome!
 
 ## Contacts
+
 [Giuseppe Zerbo](https://github.com/pepzer), [giuseppe (dot) zerbo (at) gmail (dot) com](mailto:giuseppe.zerbo@gmail.com).
 
 ## License

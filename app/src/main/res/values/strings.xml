@@ -37,7 +37,7 @@
     <string name="about_title_license">License:</string>
     <string name="about_license">Mozilla Public License, v. 2.0</string>
     <string name="about_license_url">http://mozilla.org/MPL/2.0/</string>
-    <string name="about_app_url">https://github.com/pepzer</string>
+    <string name="about_app_url">https://github.com/pepzer/MQTTDroid</string>
 
     <string name="restart_to_apply">Restart the service to apply the config.</string>
 
