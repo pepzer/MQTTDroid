@@ -21,7 +21,6 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
-import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import java.io.BufferedInputStream;
@@ -75,6 +74,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+
+import androidx.core.app.NotificationCompat;
 
 import javax.net.SocketFactory;
 import javax.net.ssl.SSLContext;
