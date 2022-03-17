@@ -24,7 +24,6 @@ import android.content.Intent;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CompoundButton;
 import android.widget.ListView;
-import android.widget.Switch;
 import android.widget.TextView;
 
 import org.pepzer.mqttdroid.sqlite.AppAuthDetails;
@@ -37,6 +36,7 @@ import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
 
     private CustomArrayAdapter adapter;
 
-    private Switch mainSwitch;
+    private SwitchCompat mainSwitch;
     private TextView proxyStatusTextView;
 
     private SharedPreferences sharedPreferences;
@@ -196,7 +196,7 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        mainSwitch = (Switch) findViewById(R.id.main_switch);
+        mainSwitch = findViewById(R.id.main_switch);
         proxyStatusTextView = (TextView) findViewById(R.id.proxy_status);
 
         updateStatusUI(proxyState, false);
@@ -416,7 +416,7 @@ public class MainActivity extends AppCompatActivity {
                 proxyState = proxyService.getProxyState();
                 mHandler.sendMessage(mHandler.obtainMessage(MSG_PROXY_STATE_CHANGE, proxyState));
 
-                if (sharedPreferences.getBoolean(Utils.PREF_CONFIG_CHANGE, true)) {
+                if (sharedPreferences.getBoolean(Utils.PREF_CONFIG_CHANGE, false)) {
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putBoolean(Utils.PREF_CONFIG_CHANGE, false).commit();
                     restartProxyService();
@@ -488,18 +488,16 @@ public class MainActivity extends AppCompatActivity {
      * Bind to the proxy service.
      */
     void doBindProxy() {
-        bindService(new Intent(MainActivity.this,
+        proxyIsBound = bindService(new Intent(MainActivity.this,
                 ProxyService.class), proxyConnection, Context.BIND_ABOVE_CLIENT);
-        proxyIsBound = true;
     }
 
     /**
      * Bind to the authorization service, create it if not running.
      */
     void doBindAuth() {
-        bindService(new Intent(MainActivity.this,
+        authIsBound = bindService(new Intent(MainActivity.this,
                 AuthService.class), authConnection, Context.BIND_AUTO_CREATE);
-        authIsBound = true;
     }
 
     void doBindServices() {
