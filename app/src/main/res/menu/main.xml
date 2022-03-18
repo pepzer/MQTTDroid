@@ -6,7 +6,7 @@
         android:icon="@drawable/search_ico"
         android:orderInCategory="100"
         app:showAsAction="collapseActionView|always"
-        app:actionViewClass="android.support.v7.widget.SearchView" >
+        app:actionViewClass="androidx.appcompat.widget.SearchView" >
     </item>
     <item android:id="@+id/action_filter"
         android:title="@string/action_filter"

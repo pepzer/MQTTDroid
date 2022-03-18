@@ -6,6 +6,7 @@
 package org.pepzer.mqttdroid;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -18,10 +19,10 @@ import android.content.pm.PackageManager;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
-import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import java.io.BufferedInputStream;
@@ -76,12 +77,16 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
+import androidx.annotation.NonNull;
+import androidx.core.app.NotificationCompat;
+
 import javax.net.SocketFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
 
 public class ProxyService extends Service {
     private static final String TAG = "ProxyService";
+    public static final String CHANNEL_ID = "org.pepzer.mqttdroid.ProxyService";
 
     private IMQTTDroidCallback controlCallback = null;
     private int proxyState = Utils.PROXY_STOPPED;
@@ -190,20 +195,30 @@ public class ProxyService extends Service {
     public void onCreate() {
         super.onCreate();
         Log.v(TAG, "onCreate()");
-
+// if debugging needed uncomment and see https://stackoverflow.com/questions/15640871/how-to-debug-remote-aidl-service-in-android
+//        android.os.Debug.waitForDebugger();
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         if (sharedPreferences.getBoolean(Utils.PREF_PROXY_ACTIVE, false)) {
+
+            CharSequence name = getString(R.string.channel_name);
+            String description = getString(R.string.channel_description);
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
 
             Intent notificationIntent = new Intent(this, MainActivity.class);
             PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
                     notificationIntent, 0);
 
-            notifBuilder = new NotificationCompat.Builder(this)
+            notifBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
                     .setSmallIcon(R.mipmap.logo_nobg)
                     //.setContentTitle("MQTTDroid")
                     .setContentText(getResources().getString(R.string.proxy_notification))
                     .setContentIntent(pendingIntent);
-
             Notification notification = notifBuilder.build();
 
             startForeground(notifId, notification);
@@ -358,27 +373,30 @@ public class ProxyService extends Service {
      *   An int matching Utils.PROXY_*.
      */
     private void changeProxyState(int newState) {
-        Log.v(TAG, "changeProxyState, newState: " + newState);
-        proxyState = newState;
-        if (controlCallback != null) {
-            try {
-                controlCallback.proxyStateChanged(proxyState);
-            } catch (RemoteException e) {
-                e.printStackTrace();
-            }
-        }
-
-        updateNotification();
-
-        Iterator<String> packageIterator = packageToCallback.keySet().iterator();
-        while (packageIterator.hasNext()) {
-            String packageName = packageIterator.next();
-            IMQTTDroidNetCallback callback = packageToCallback.get(packageName);
-            if (refreshNetCallback(callback, packageName)) {
+        if (proxyState != newState) {
+            // only do processing if the state actually changed
+            Log.v(TAG, "changeProxyState, newState: " + newState);
+            proxyState = newState;
+            if (controlCallback != null) {
                 try {
-                    callback.proxyStateChanged(proxyState);
+                    controlCallback.proxyStateChanged(proxyState);
                 } catch (RemoteException e) {
                     e.printStackTrace();
+                }
+            }
+
+            updateNotification();
+
+            Iterator<String> packageIterator = packageToCallback.keySet().iterator();
+            while (packageIterator.hasNext()) {
+                String packageName = packageIterator.next();
+                IMQTTDroidNetCallback callback = packageToCallback.get(packageName);
+                if (refreshNetCallback(callback, packageName)) {
+                    try {
+                        callback.proxyStateChanged(proxyState);
+                    } catch (RemoteException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }
@@ -459,8 +477,10 @@ public class ProxyService extends Service {
         MqttConnectOptions options = new MqttConnectOptions();
         options.setCleanSession(cleanSession);
         options.setAutomaticReconnect(mqttConfig.isAutoReconnect());
-        options.setUserName(mqttConfig.getUsername());
-        options.setPassword(mqttConfig.getPassword().toCharArray());
+        if (mqttConfig.getUsername().length() > 0) {
+            options.setUserName(mqttConfig.getUsername());
+            options.setPassword(mqttConfig.getPassword().toCharArray());
+        }
         int timeout = mqttConfig.getComplTimeout();
         options.setConnectionTimeout(timeout);
         options.setKeepAliveInterval(mqttConfig.getKeepalive());
@@ -979,8 +999,9 @@ public class ProxyService extends Service {
     /**
      * Handler that receives and processes messages from the clients and from the mqtt server.
      */
-    private Handler mHandler = new Handler() {
-        @Override public void handleMessage(Message msg) {
+    private Handler mHandler = new Handler(Looper.getMainLooper(), new Handler.Callback() {
+        @Override
+        public boolean handleMessage(@NonNull Message msg) {
             success = false;
             IMQTTDroidNetCallback callback;
             switch (msg.what) {
@@ -1190,11 +1211,11 @@ public class ProxyService extends Service {
                     break;
 
                 default:
-                    super.handleMessage(msg);
+                    Log.w(TAG, "unknown message: " + msg.toString());
             }
+            return true;
         }
-
-    };
+    });
 
 
     /**

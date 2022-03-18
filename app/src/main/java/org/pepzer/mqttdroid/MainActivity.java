@@ -16,21 +16,14 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.View;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.content.Intent;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CompoundButton;
 import android.widget.ListView;
-import android.widget.Switch;
 import android.widget.TextView;
 
 import org.pepzer.mqttdroid.sqlite.AppAuthDetails;
@@ -40,6 +33,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
+import androidx.appcompat.widget.SwitchCompat;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
+import com.google.android.material.snackbar.Snackbar;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -60,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
 
     private CustomArrayAdapter adapter;
 
-    private Switch mainSwitch;
+    private SwitchCompat mainSwitch;
     private TextView proxyStatusTextView;
 
     private SharedPreferences sharedPreferences;
@@ -163,9 +165,9 @@ public class MainActivity extends AppCompatActivity {
         List<String> permissions = new ArrayList<>();
 
         if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.BIND_RCV)
+                "org.pepzer.mqttdroid.BIND_RCV")
                 != PackageManager.PERMISSION_GRANTED) {
-            permissions.add(Manifest.permission.BIND_RCV);
+            permissions.add("org.pepzer.mqttdroid.BIND_RCV");
         }
 
         if (ContextCompat.checkSelfPermission(this,
@@ -194,7 +196,7 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        mainSwitch = (Switch) findViewById(R.id.main_switch);
+        mainSwitch = findViewById(R.id.main_switch);
         proxyStatusTextView = (TextView) findViewById(R.id.proxy_status);
 
         updateStatusUI(proxyState, false);
@@ -414,7 +416,7 @@ public class MainActivity extends AppCompatActivity {
                 proxyState = proxyService.getProxyState();
                 mHandler.sendMessage(mHandler.obtainMessage(MSG_PROXY_STATE_CHANGE, proxyState));
 
-                if (sharedPreferences.getBoolean(Utils.PREF_CONFIG_CHANGE, true)) {
+                if (sharedPreferences.getBoolean(Utils.PREF_CONFIG_CHANGE, false)) {
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putBoolean(Utils.PREF_CONFIG_CHANGE, false).commit();
                     restartProxyService();
@@ -486,18 +488,16 @@ public class MainActivity extends AppCompatActivity {
      * Bind to the proxy service.
      */
     void doBindProxy() {
-        bindService(new Intent(MainActivity.this,
+        proxyIsBound = bindService(new Intent(MainActivity.this,
                 ProxyService.class), proxyConnection, Context.BIND_ABOVE_CLIENT);
-        proxyIsBound = true;
     }
 
     /**
      * Bind to the authorization service, create it if not running.
      */
     void doBindAuth() {
-        bindService(new Intent(MainActivity.this,
+        authIsBound = bindService(new Intent(MainActivity.this,
                 AuthService.class), authConnection, Context.BIND_AUTO_CREATE);
-        authIsBound = true;
     }
 
     void doBindServices() {
