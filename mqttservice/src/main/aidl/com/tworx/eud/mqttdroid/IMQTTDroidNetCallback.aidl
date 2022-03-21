@@ -1,4 +1,4 @@
-package org.pepzer.mqttdroid;
+package com.tworx.eud.mqttdroid;
 
 interface IMQTTDroidNetCallback {
 

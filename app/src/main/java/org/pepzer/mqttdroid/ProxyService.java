@@ -80,6 +80,12 @@ import android.net.NetworkInfo;
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 
+import com.tworx.eud.mqttdroid.IMQTTDroid;
+import com.tworx.eud.mqttdroid.IMQTTDroidCallback;
+import com.tworx.eud.mqttdroid.IMQTTDroidNet;
+import com.tworx.eud.mqttdroid.IMQTTDroidNetCallback;
+import com.tworx.eud.mqttdroid.IMQTTReceiver;
+
 import javax.net.SocketFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;

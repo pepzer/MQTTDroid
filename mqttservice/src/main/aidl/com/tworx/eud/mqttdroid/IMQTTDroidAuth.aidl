@@ -1,7 +1,7 @@
 // IMQTTDroidAuth.aidl
-package org.pepzer.mqttdroid;
+package com.tworx.eud.mqttdroid;
 
-import org.pepzer.mqttdroid.IMQTTDroidAuthCallback;
+import com.tworx.eud.mqttdroid.IMQTTDroidAuthCallback;
 
 interface IMQTTDroidAuth {
 

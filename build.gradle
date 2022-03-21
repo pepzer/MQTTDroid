@@ -1,6 +1,26 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
+    ext.getValueFromPropertiesFile = { propFile, key ->
+        if(!propFile.isFile() || !propFile.canRead())
+            return null
+        def prop = new Properties()
+        def reader = propFile.newReader()
+        try {
+            prop.load(reader)
+        } finally {
+            reader.close()
+        }
+        return prop.get(key)
+    }
+
+    def getProperty = { name, defValue ->
+        def prop = project.properties[name] ?:
+                getValueFromPropertiesFile(project.rootProject.file('local.properties'), name)
+        return (null == prop) ? defValue : prop
+    }
+    ext.tworxrepoUrl = getProperty('tworxrepo', 'http://buildserver.tworx.com') + '/nexus/repository/maven-releases/'
+
     repositories {
         google()
         jcenter ()

@@ -43,6 +43,11 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.google.android.material.snackbar.Snackbar;
+import com.tworx.eud.mqttdroid.IMQTTDroid;
+import com.tworx.eud.mqttdroid.IMQTTDroidAuth;
+import com.tworx.eud.mqttdroid.IMQTTDroidAuthCallback;
+import com.tworx.eud.mqttdroid.IMQTTDroidCallback;
+import com.tworx.eud.mqttdroid.IMQTTDroidNet;
 
 public class MainActivity extends AppCompatActivity {
 
