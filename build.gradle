@@ -20,6 +20,8 @@ buildscript {
         return (null == prop) ? defValue : prop
     }
     ext.tworxrepoUrl = getProperty('tworxrepo', 'http://buildserver.tworx.com') + '/nexus/repository/maven-releases/'
+    ext.tworxrepoUser = getProperty('tworxrepoUser', 'innvalid')
+    ext.tworxrepoPwd = getProperty('tworxrepoPwd', 'innvalid')
 
     repositories {
         google()

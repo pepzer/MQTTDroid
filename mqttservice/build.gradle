@@ -59,8 +59,8 @@ afterEvaluate {
                 allowInsecureProtocol = true
                 url tworxrepoUrl
                 credentials {
-                    username = 'build-agent'
-                    password = 'zArN5ay5uAs9K7p'
+                    username tworxrepoUser
+                    password tworxrepoPwd
                 }
             }
         }
