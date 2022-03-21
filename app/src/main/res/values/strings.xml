@@ -67,6 +67,7 @@
     <string name="pref_default_crt_path">/MQTTDroid/ca.crt</string>
 
     <string name="proxy_notification">MQTTDroid Proxy is running.</string>
+    <string name="auth_notification">MQTTDroid Auth is running.</string>
     <string name="auth_notification_title">New authorization request</string>
 
     <string name="snack_proxy_disconnected">Proxy service disconnected.</string>

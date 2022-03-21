@@ -86,7 +86,7 @@ import javax.net.ssl.TrustManagerFactory;
 
 public class ProxyService extends Service {
     private static final String TAG = "ProxyService";
-    public static final String CHANNEL_ID = "org.pepzer.mqttdroid.ProxyService";
+    private static final String CHANNEL_ID = "org.pepzer.mqttdroid.ProxyService";
 
     private IMQTTDroidCallback controlCallback = null;
     private int proxyState = Utils.PROXY_STOPPED;
@@ -207,8 +207,8 @@ public class ProxyService extends Service {
             channel.setDescription(description);
             // Register the channel with the system; you can't change the importance
             // or other notification behaviors after this
-            NotificationManager notificationManager = getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(channel);
+            notifManager = getSystemService(NotificationManager.class);
+            notifManager.createNotificationChannel(channel);
 
             Intent notificationIntent = new Intent(this, MainActivity.class);
             PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
@@ -255,9 +255,6 @@ public class ProxyService extends Service {
         if (notifBuilder == null) {
             Log.e(TAG, "Notification builder is null!");
             return;
-        }
-        if (notifManager == null) {
-            notifManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         }
 
         String content;
