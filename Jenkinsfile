@@ -25,10 +25,15 @@ pipeline {
                     sh "getent hosts nginx | awk '{ print \$1 }' > repo-ip.txt"
                     docker.withRegistry("${TWORX_DOCKER_REPO}", "${registryCredentials}") {
                         docker.image("${androidSDKImageName}").inside {
-                            sh "echo tworxrepo=http://\$(cat repo-ip.txt) >> ./local.properties"
-                            sh "echo tworxrepoUser=${nexusCredentials_USR} >> ./local.properties"
-                            sh "echo tworxrepoPwd=${nexusCredentials_PWD} >> ./local.properties"
-                            sh "./gradlew :mqttservice:publishReleasePublicationToTworxrepoRepository"
+                            withCredentials([usernamePassword(credentialsId: 'nexus-build-agent-credentials', passwordVariable: 'nexusPwd', usernameVariable: 'nexusUser')]) {
+                                def ipAddr = readFile(file: 'repo-ip.txt')
+                                def fileData = "tworxrepo=http://" + ipAddr + "\ntworxrepoUser=" + nexusCredentials.user + "\ntworxrepoPwd=" + nexusCredentials.password + "\n"
+                                writeFile(file: 'local.properties', text: fileData)
+                                //sh "echo tworxrepo=http://\$(cat repo-ip.txt) >> ./local.properties"
+                                //sh "echo tworxrepoUser=${nexusCredentials_USR} >> ./local.properties"
+                                //sh "echo tworxrepoPwd=${nexusCredentials_PWD} >> ./local.properties"
+                                sh "./gradlew :mqttservice:publishReleasePublicationToTworxrepoRepository"
+                            }
                         }
                     }
                  }
