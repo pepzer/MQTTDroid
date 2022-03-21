@@ -3,7 +3,8 @@ pipeline {
         androidSDKImageName = "tworx/eud-builder:latest"
         registryCredentials = 'dockerhub-repo-credentials'
         nexusCredentials = credentials('nexus-build-agent-credentials')
-//        nexusRepo = 'http://nginx/nexus/repository/raw/tworx/atak-plugin'
+        nexusRepoPath = "/nexus/repository/maven-"
+        mavenRepoType = "${env.TAG_NAME == null ? 'snapshots' : 'releases'}"
     }
     agent any
     stages {
@@ -27,11 +28,8 @@ pipeline {
                         docker.image("${androidSDKImageName}").inside {
                             withCredentials([usernamePassword(credentialsId: 'nexus-build-agent-credentials', passwordVariable: 'nexusPwd', usernameVariable: 'nexusUser')]) {
                                 def ipAddr = readFile(file: 'repo-ip.txt')
-                                def fileData = "tworxrepo=http://" + ipAddr + "\ntworxrepoUser=" + nexusUser + "\ntworxrepoPwd=" + nexusPwd + "\n"
+                                def fileData = "tworxrepo=http://" + ipAddr + nexusRepoPath + mavenRepoType + "\ntworxrepoUser=" + nexusUser + "\ntworxrepoPwd=" + nexusPwd + "\n"
                                 writeFile(file: 'local.properties', text: fileData)
-                                //sh "echo tworxrepo=http://\$(cat repo-ip.txt) >> ./local.properties"
-                                //sh "echo tworxrepoUser=${nexusCredentials_USR} >> ./local.properties"
-                                //sh "echo tworxrepoPwd=${nexusCredentials_PWD} >> ./local.properties"
                                 sh "./gradlew :mqttservice:publishReleasePublicationToTworxrepoRepository"
                             }
                         }
@@ -44,7 +42,7 @@ pipeline {
                 script {                    
                     docker.withRegistry("${TWORX_DOCKER_REPO}", "${registryCredentials}") {
                         docker.image("${androidSDKImageName}").inside {
-                            sh "./gradlew :app:assemble"
+                            sh "./gradlew :app:build"
                         }
                     }
                 }

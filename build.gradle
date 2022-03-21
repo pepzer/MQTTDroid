@@ -19,7 +19,7 @@ buildscript {
                 getValueFromPropertiesFile(project.rootProject.file('local.properties'), name)
         return (null == prop) ? defValue : prop
     }
-    ext.tworxrepoUrl = getProperty('tworxrepo', 'http://buildserver.tworx.com') + '/nexus/repository/maven-releases/'
+    ext.tworxrepoUrl = getProperty('tworxrepo', 'invalid') 
     ext.tworxrepoUser = getProperty('tworxrepoUser', 'innvalid')
     ext.tworxrepoPwd = getProperty('tworxrepoPwd', 'innvalid')
 
