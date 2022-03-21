@@ -27,7 +27,7 @@ pipeline {
                         docker.image("${androidSDKImageName}").inside {
                             withCredentials([usernamePassword(credentialsId: 'nexus-build-agent-credentials', passwordVariable: 'nexusPwd', usernameVariable: 'nexusUser')]) {
                                 def ipAddr = readFile(file: 'repo-ip.txt')
-                                def fileData = "tworxrepo=http://" + ipAddr + "\ntworxrepoUser=" + nexusCredentials.user + "\ntworxrepoPwd=" + nexusCredentials.password + "\n"
+                                def fileData = "tworxrepo=http://" + ipAddr + "\ntworxrepoUser=" + nexusUser + "\ntworxrepoPwd=" + nexusPwd + "\n"
                                 writeFile(file: 'local.properties', text: fileData)
                                 //sh "echo tworxrepo=http://\$(cat repo-ip.txt) >> ./local.properties"
                                 //sh "echo tworxrepoUser=${nexusCredentials_USR} >> ./local.properties"
