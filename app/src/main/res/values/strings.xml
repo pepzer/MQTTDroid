@@ -60,15 +60,19 @@
     <string name="pref_default_keepalive">60</string>
     <string name="pref_title_clean_session">Clean Session</string>
     <string name="pref_title_auto_reconnect">Auto Reconnect</string>
-    <string name="pref_title_compl_timeout">Completition Timeout (msec)</string>
+    <string name="pref_title_compl_timeout">Completion Timeout (msec)</string>
     <string name="pref_default_compl_timeout">3000</string>
     <string name="pref_title_custom_ca">Use custom CA cert</string>
     <string name="pref_title_crt_path">Path to the CA cert</string>
     <string name="pref_default_crt_path">/MQTTDroid/ca.crt</string>
 
     <string name="proxy_notification">MQTTDroid Proxy is running.</string>
+    <string name="auth_notification">MQTTDroid Auth is running.</string>
     <string name="auth_notification_title">New authorization request</string>
 
     <string name="snack_proxy_disconnected">Proxy service disconnected.</string>
     <string name="snack_auth_disconnected">Auth service disconnected.</string>
+
+    <string name="channel_name">MQTT Service Notification</string>
+    <string name="channel_description">Notifications for the MQTT Service</string>
 </resources>

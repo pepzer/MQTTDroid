@@ -5,6 +5,7 @@
 
 package org.pepzer.mqttdroid;
 
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -15,9 +16,13 @@ import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteConstraintException;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
 import android.util.Log;
+
+import androidx.core.app.NotificationCompat;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -29,11 +34,37 @@ public class AuthService extends Service {
 
     private static final String TAG = "AuthService";
     private IMQTTDroidAuthCallback refreshCallback = null;
+    private NotificationCompat.Builder notifBuilder = null;
+    private NotificationManager notifManager = null;
+    private static final String CHANNEL_ID = "org.pepzer.mqttdroid.AuthService";
+    private int notifId = 15371;
 
     @Override
     public void onCreate() {
         super.onCreate();
         Log.v(TAG, "onCreate()");
+        CharSequence name = getString(R.string.channel_name);
+        String description = getString(R.string.channel_description);
+        int importance = NotificationManager.IMPORTANCE_DEFAULT;
+        NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+        channel.setDescription(description);
+        // Register the channel with the system; you can't change the importance
+        // or other notification behaviors after this
+        notifManager = getSystemService(NotificationManager.class);
+        notifManager.createNotificationChannel(channel);
+
+        Intent notificationIntent = new Intent(this, MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
+                notificationIntent, 0);
+
+        notifBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setSmallIcon(R.mipmap.logo_nobg)
+                //.setContentTitle("MQTTDroid")
+                .setContentText(getResources().getString(R.string.auth_notification))
+                .setContentIntent(pendingIntent);
+        Notification notification = notifBuilder.build();
+
+        startForeground(notifId, notification);
     }
 
     @Override
@@ -61,6 +92,10 @@ public class AuthService extends Service {
      *   Container object for the authorization request.
      */
     private void sendNotification(AuthRequest authRequest) {
+        if (notifBuilder == null) {
+            Log.e(TAG, "Notification builder is null!");
+            return;
+        }
 
         Intent intent = new Intent(this, MainActivity.class);
         // use System.currentTimeMillis() to have a unique ID for the pending intent
@@ -77,19 +112,12 @@ public class AuthService extends Service {
 //        }
 //        Bitmap bitmap = ((BitmapDrawable)icon).getBitmap();
 
-        Notification n = new Notification.Builder(this)
-                .setContentTitle(getResources().getString(R.string.auth_notification_title))
-                .setContentText(authRequest.getAppLabel())
-                .setSmallIcon(R.mipmap.logo_nobg)
-                //.setLargeIcon(bitmap)
-                .setContentIntent(pIntent)
-                .setAutoCancel(true).build();
-
-
-        NotificationManager notificationManager =
-                (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-
-        notificationManager.notify(15371, n);
+        notifManager.notify(notifId,
+                notifBuilder
+                        .setContentTitle(getResources().getString(R.string.auth_notification_title))
+                        .setContentText(authRequest.getAppLabel())
+                        .setContentIntent(pIntent)
+                        .build());
     }
 
     /**
@@ -170,7 +198,7 @@ public class AuthService extends Service {
          *   Callback sent by the client.
          */
         public void registerCallback(IMQTTDroidAuthCallback callback) {
-            Log.v(TAG, "registerCallback ");
+            Log.v(TAG, "registerCallback");
             if (isLocalConnection()) {
                 refreshCallback = callback;
             }
@@ -243,8 +271,8 @@ public class AuthService extends Service {
 
     private static final int MSG_NEW_AUTH_REQ = 0;
 
-    private Handler msgHandler = new Handler() {
-        @Override public void handleMessage(Message msg) {
+    private final Handler msgHandler = new Handler(Looper.getMainLooper(), new Handler.Callback() {
+        @Override public boolean handleMessage(Message msg) {
             switch (msg.what) {
 
                 /**
@@ -269,9 +297,9 @@ public class AuthService extends Service {
                     }
                     break;
                 default:
-                    super.handleMessage(msg);
+                    Log.w(TAG, "unknown message: " + msg.toString());
             }
+            return true;
         }
-
-    };
+    });
 }

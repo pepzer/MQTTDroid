@@ -13,24 +13,18 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.View;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.content.Intent;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CompoundButton;
 import android.widget.ListView;
-import android.widget.Switch;
 import android.widget.TextView;
 
 import org.pepzer.mqttdroid.sqlite.AppAuthDetails;
@@ -41,6 +35,15 @@ import java.util.List;
 
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
+import androidx.appcompat.widget.SwitchCompat;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
+import com.google.android.material.snackbar.Snackbar;
+
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MqttDroidMain";
@@ -48,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
     private IMQTTDroid proxyService = null;
     private boolean proxyIsBound = false;
 
-    IMQTTDroidAuth authService = null;
+    private IMQTTDroidAuth authService = null;
     private boolean authIsBound = false;
     private AuthDataSource authDataSource;
 
@@ -60,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
 
     private CustomArrayAdapter adapter;
 
-    private Switch mainSwitch;
+    private SwitchCompat mainSwitch;
     private TextView proxyStatusTextView;
 
     private SharedPreferences sharedPreferences;
@@ -163,9 +166,9 @@ public class MainActivity extends AppCompatActivity {
         List<String> permissions = new ArrayList<>();
 
         if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.BIND_RCV)
+                "org.pepzer.mqttdroid.BIND_RCV")
                 != PackageManager.PERMISSION_GRANTED) {
-            permissions.add(Manifest.permission.BIND_RCV);
+            permissions.add("org.pepzer.mqttdroid.BIND_RCV");
         }
 
         if (ContextCompat.checkSelfPermission(this,
@@ -183,6 +186,7 @@ public class MainActivity extends AppCompatActivity {
         authDataSource = new AuthDataSource(this);
         authDataSource.open();
 
+        doStartAuthService();
         if (sharedPreferences.getBoolean(Utils.PREF_PROXY_ACTIVE, false)) {
             doStartProxyService();
             doBindServices();
@@ -194,7 +198,7 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        mainSwitch = (Switch) findViewById(R.id.main_switch);
+        mainSwitch = findViewById(R.id.main_switch);
         proxyStatusTextView = (TextView) findViewById(R.id.proxy_status);
 
         updateStatusUI(proxyState, false);
@@ -405,7 +409,7 @@ public class MainActivity extends AppCompatActivity {
             // This is called when the connection with the service has been
             // established, giving us the service object we can use to
             // interact with the service.
-            Log.v(TAG, "onServiceConnected");
+            Log.v(TAG, "onServiceConnected proxyService");
             IMQTTDroidNet netService = IMQTTDroidNet.Stub.asInterface(service);
             try {
                 proxyService = IMQTTDroid.Stub.asInterface(netService.getControlBinder());
@@ -414,7 +418,7 @@ public class MainActivity extends AppCompatActivity {
                 proxyState = proxyService.getProxyState();
                 mHandler.sendMessage(mHandler.obtainMessage(MSG_PROXY_STATE_CHANGE, proxyState));
 
-                if (sharedPreferences.getBoolean(Utils.PREF_CONFIG_CHANGE, true)) {
+                if (sharedPreferences.getBoolean(Utils.PREF_CONFIG_CHANGE, false)) {
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putBoolean(Utils.PREF_CONFIG_CHANGE, false).commit();
                     restartProxyService();
@@ -423,8 +427,8 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
 
-//            Snackbar.make(findViewById(R.id.main_switch), "proxy_service_connected", Snackbar.LENGTH_LONG)
-//                    .setAction("Action", null).show();
+            Snackbar.make(findViewById(R.id.main_switch), "proxy_service_connected", Snackbar.LENGTH_LONG)
+                    .setAction("Action", null).show();
         }
 
         /**
@@ -457,15 +461,15 @@ public class MainActivity extends AppCompatActivity {
                                        IBinder service) {
             authService = IMQTTDroidAuth.Stub.asInterface(service);
 
-            Log.v(TAG, "onServiceConnected");
+            Log.v(TAG, "onServiceConnected authService");
             try {
                 authService.registerCallback(authCallback);
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
 
-//            Snackbar.make(findViewById(R.id.main_switch), "auth_service_connected", Snackbar.LENGTH_LONG)
-//                    .setAction("Action", null).show();
+            Snackbar.make(findViewById(R.id.main_switch), "auth_service_connected", Snackbar.LENGTH_LONG)
+                    .setAction("Action", null).show();
         }
 
         /**
@@ -486,18 +490,16 @@ public class MainActivity extends AppCompatActivity {
      * Bind to the proxy service.
      */
     void doBindProxy() {
-        bindService(new Intent(MainActivity.this,
+        proxyIsBound = bindService(new Intent(MainActivity.this,
                 ProxyService.class), proxyConnection, Context.BIND_ABOVE_CLIENT);
-        proxyIsBound = true;
     }
 
     /**
      * Bind to the authorization service, create it if not running.
      */
     void doBindAuth() {
-        bindService(new Intent(MainActivity.this,
+        authIsBound = bindService(new Intent(MainActivity.this,
                 AuthService.class), authConnection, Context.BIND_AUTO_CREATE);
-        authIsBound = true;
     }
 
     void doBindServices() {
@@ -522,6 +524,14 @@ public class MainActivity extends AppCompatActivity {
             unbindService(proxyConnection);
             proxyIsBound = false;
         }
+    }
+
+    /**
+     * Explicitly start the auth service.
+     */
+    void doStartAuthService() {
+        Intent intent = new Intent(MainActivity.this, AuthService.class);
+        startService(intent);
     }
 
     /**
@@ -606,8 +616,8 @@ public class MainActivity extends AppCompatActivity {
     private static final int MSG_NEW_AUTH_REQ = 2;
 
 
-    private Handler mHandler = new Handler() {
-        @Override public void handleMessage(Message msg) {
+    private Handler mHandler = new Handler(Looper.getMainLooper(), new Handler.Callback() {
+        @Override public boolean handleMessage(Message msg) {
             switch (msg.what) {
 
                 /**
@@ -627,9 +637,9 @@ public class MainActivity extends AppCompatActivity {
                     break;
 
                 default:
-                    super.handleMessage(msg);
+                    Log.w(TAG, "unknown message: " + msg.toString());
             }
+            return true;
         }
-
-    };
+    });
 }
