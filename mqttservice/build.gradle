@@ -3,6 +3,18 @@ plugins {
     id 'maven-publish'
 }
 
+ext.versionMajor = 1
+ext.versionMinor = 0
+ext.versionPatch = 0
+
+def computeVersionName() {
+    return String.format('%d.%d.%d%s', versionMajor, versionMinor, versionPatch, snapshotTag)
+}
+
+def computeVersionCode() {
+    return (versionMajor * 1000000) + (versionMinor * 100000) + (versionPatch * 10000) + Integer.valueOf(System.env.BUILD_NUMBER ?: 0)
+}
+
 android {
     namespace = 'com.tworx.eud'
     compileSdk 31
@@ -10,7 +22,8 @@ android {
     defaultConfig {
         minSdk 28
         targetSdk 31
-        versionName "1.0-SNAPSHOT"
+        versionName computeVersionName()
+        versionCode computeVersionCode()
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -25,6 +38,14 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+    }
+    signingConfigs {
+        config {
+            keyAlias alias
+            keyPassword keyPass
+            storeFile file(keystore)
+            storePassword storePass
+        }
     }
     publishing {
         singleVariant('release') {

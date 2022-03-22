@@ -5,6 +5,7 @@ pipeline {
         nexusCredentials = credentials('nexus-build-agent-credentials')
         nexusRepoPath = "/nexus/repository/maven-"
         mavenRepoType = "${env.TAG_NAME == null ? 'snapshots' : 'releases'}"
+        debugKeyStore = credentials('android-debug-keystore')
     }
     agent any
     stages {
@@ -42,7 +43,7 @@ pipeline {
                 script {                    
                     docker.withRegistry("${TWORX_DOCKER_REPO}", "${registryCredentials}") {
                         docker.image("${androidSDKImageName}").inside {
-                            sh "./gradlew :app:build"
+                            sh "./gradlew -pkeystore=${debugKeyStore} android-debug-keystore :app:test :app:assemble"
                         }
                     }
                 }
