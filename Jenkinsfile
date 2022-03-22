@@ -51,6 +51,7 @@ pipeline {
                             localProperties += "storePass=" + debugKeyStorePwd + "\n"
                             localProperties += "alias=" + debugKeyStoreAlias + "\n"
                             localProperties += "keyPass=" + debugKeyPwd + "\n"
+                            writeFile(file: 'local.properties', text: localProperties)
                             sh "./gradlew :app:test :app:assembleDebug"
                         }
                     }
