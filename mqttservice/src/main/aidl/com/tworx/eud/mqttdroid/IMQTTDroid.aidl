@@ -1,7 +1,7 @@
 // IMQTTDroid.aidl
-package org.pepzer.mqttdroid;
+package com.tworx.eud.mqttdroid;
 
-import org.pepzer.mqttdroid.IMQTTDroidCallback;
+import com.tworx.eud.mqttdroid.IMQTTDroidCallback;
 
 interface IMQTTDroid {
 

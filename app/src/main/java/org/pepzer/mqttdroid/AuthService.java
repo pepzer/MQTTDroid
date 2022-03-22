@@ -23,6 +23,9 @@ import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
 
+import com.tworx.eud.mqttdroid.IMQTTDroidAuth;
+import com.tworx.eud.mqttdroid.IMQTTDroidAuthCallback;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;

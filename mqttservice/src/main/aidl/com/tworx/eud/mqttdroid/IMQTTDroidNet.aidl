@@ -1,8 +1,8 @@
 // IMQTTDroidNet.aidl
-package org.pepzer.mqttdroid;
+package com.tworx.eud.mqttdroid;
 
 // Declare any non-default types here with import statements
-import org.pepzer.mqttdroid.IMQTTDroidNetCallback;
+import com.tworx.eud.mqttdroid.IMQTTDroidNetCallback;
 
 interface IMQTTDroidNet {
 
