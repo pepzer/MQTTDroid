@@ -46,7 +46,12 @@ pipeline {
                 script {                    
                     docker.withRegistry("${TWORX_DOCKER_REPO}", "${registryCredentials}") {
                         docker.image("${androidSDKImageName}").inside {
-                            sh "./gradlew -Pkeystore=${debugKeyStore} -PstorePass=${debugKeyStorePwd} -Palias=${debugKeyStoreAlias} -PkeyPass=${debugKeyPwd} :app:test :app:assembleDebug"
+                            def localProperties = readFile(file: 'local.properties')
+                            localProperties += "keystore=" + debugKeyStore + "\n"
+                            localProperties += "storePass=" + debugKeyStorePwd + "\n"
+                            localProperties += "alias=" + debugKeyStoreAlias + "\n"
+                            localProperties += "keyPass=" + debugKeyPwd + "\n"
+                            sh "./gradlew :app:test :app:assembleDebug"
                         }
                     }
                 }
