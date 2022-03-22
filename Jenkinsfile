@@ -43,7 +43,7 @@ pipeline {
                 script {                    
                     docker.withRegistry("${TWORX_DOCKER_REPO}", "${registryCredentials}") {
                         docker.image("${androidSDKImageName}").inside {
-                            sh "./gradlew -pkeystore=${debugKeyStore} android-debug-keystore :app:test :app:assemble"
+                            sh "./gradlew -Pkeystore=${debugKeyStore} android-debug-keystore :app:test :app:assemble"
                         }
                     }
                 }
