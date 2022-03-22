@@ -28,7 +28,6 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
     }
-
     buildTypes {
         release {
             minifyEnabled false
@@ -38,14 +37,6 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
-    }
-    signingConfigs {
-        config {
-            keyAlias alias
-            keyPassword keyPass
-            storeFile file(keystore)
-            storePassword storePass
-        }
     }
     publishing {
         singleVariant('release') {

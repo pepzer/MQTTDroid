@@ -1,6 +1,6 @@
 pipeline {
     environment {
-        androidSDKImageName = "tworx/eud-builder:latest"
+        androidSDKImageName = "tworx/eud-builder:2022-03-22"
         registryCredentials = 'dockerhub-repo-credentials'
         nexusCredentials = credentials('nexus-build-agent-credentials')
         nexusRepoPath = "/nexus/repository/maven-"
