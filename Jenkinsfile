@@ -27,7 +27,7 @@ pipeline {
                     docker.withRegistry("${TWORX_DOCKER_REPO}", "${registryCredentials}") {
                         docker.image("${androidSDKImageName}").inside {
                             withCredentials([usernamePassword(credentialsId: 'nexus-build-agent-credentials', passwordVariable: 'nexusPwd', usernameVariable: 'nexusUser')]) {
-                                def ipAddr = readFile(file: 'repo-ip.txt')
+                                def ipAddr = readFile(file: 'repo-ip.txt').replaceAll("[\n]","")
                                 def fileData = "tworxrepo=http://" + ipAddr + nexusRepoPath + mavenRepoType + "\ntworxrepoUser=" + nexusUser + "\ntworxrepoPwd=" + nexusPwd + "\n"
                                 writeFile(file: 'local.properties', text: fileData)
                                 sh "./gradlew :mqttservice:publishReleasePublicationToTworxrepoRepository"
