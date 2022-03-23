@@ -80,11 +80,15 @@ import android.net.NetworkInfo;
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 
+import com.tworx.eud.mqttdroid.AuthState;
 import com.tworx.eud.mqttdroid.IMQTTDroid;
+import com.tworx.eud.mqttdroid.IMQTTDroidAuth;
 import com.tworx.eud.mqttdroid.IMQTTDroidCallback;
 import com.tworx.eud.mqttdroid.IMQTTDroidNet;
 import com.tworx.eud.mqttdroid.IMQTTDroidNetCallback;
 import com.tworx.eud.mqttdroid.IMQTTReceiver;
+import com.tworx.eud.mqttdroid.ProxyState;
+import com.tworx.eud.mqttdroid.Utils;
 
 import javax.net.SocketFactory;
 import javax.net.ssl.SSLContext;
@@ -95,7 +99,7 @@ public class ProxyService extends Service {
     private static final String CHANNEL_ID = "org.pepzer.mqttdroid.ProxyService";
 
     private IMQTTDroidCallback controlCallback = null;
-    private int proxyState = Utils.PROXY_STOPPED;
+    private ProxyState proxyState = ProxyState.PROXY_STOPPED;
 
     /**
      * Set of all active topic subscriptions.
@@ -139,7 +143,7 @@ public class ProxyService extends Service {
     /**
      * Map package name to current auth state.
      */
-    private Map<String, Integer> packageToAuthState = new HashMap<>();
+    private Map<String, AuthState> packageToAuthState = new HashMap<>();
     private PackageManager pm;
 
     private AuthDataSource authDataSource;
@@ -204,7 +208,7 @@ public class ProxyService extends Service {
 // if debugging needed uncomment and see https://stackoverflow.com/questions/15640871/how-to-debug-remote-aidl-service-in-android
 //        android.os.Debug.waitForDebugger();
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        if (sharedPreferences.getBoolean(Utils.PREF_PROXY_ACTIVE, false)) {
+        if (sharedPreferences.getBoolean(AppUtils.PREF_PROXY_ACTIVE, false)) {
 
             CharSequence name = getString(R.string.channel_name);
             String description = getString(R.string.channel_description);
@@ -246,7 +250,7 @@ public class ProxyService extends Service {
 
             initialized = true;
             populatePackageMaps();
-            proxyState = Utils.PROXY_STARTING;
+            proxyState = ProxyState.PROXY_STARTING;
             doConnect();
             connectionCheck();
         } else {
@@ -266,19 +270,19 @@ public class ProxyService extends Service {
         String content;
 
         switch (proxyState) {
-            case Utils.PROXY_CONNECTED:
+            case PROXY_CONNECTED:
                 content = getResources().getString(R.string.status_proxy_connected);
                 break;
-            case Utils.PROXY_DISCONNECTED:
+            case PROXY_DISCONNECTED:
                 content = getResources().getString(R.string.status_proxy_disconnected);
                 break;
-            case Utils.PROXY_STOPPED:
+            case PROXY_STOPPED:
                 content = getResources().getString(R.string.status_proxy_stopped);
                 break;
-            case Utils.PROXY_STOPPING:
+            case PROXY_STOPPING:
                 content = getResources().getString(R.string.status_proxy_stopping);
                 break;
-            case Utils.PROXY_STARTING:
+            case PROXY_STARTING:
                 content = getResources().getString(R.string.status_proxy_starting);
                 break;
             default:
@@ -310,9 +314,9 @@ public class ProxyService extends Service {
                 Log.v(TAG, "connectionCheck");
                 if (mqttClient != null) {
                     if (mqttClient.isConnected()) {
-                        changeProxyState(Utils.PROXY_CONNECTED);
+                        changeProxyState(ProxyState.PROXY_CONNECTED);
                     } else {
-                        changeProxyState(Utils.PROXY_DISCONNECTED);
+                        changeProxyState(ProxyState.PROXY_DISCONNECTED);
                         boolean hasConnectivity = hasMobile || hasWifi;
                         if (hasConnectivity && !receivedStop) {
                             doConnect();
@@ -375,14 +379,14 @@ public class ProxyService extends Service {
      * @param newState
      *   An int matching Utils.PROXY_*.
      */
-    private void changeProxyState(int newState) {
+    private void changeProxyState(ProxyState newState) {
         if (proxyState != newState) {
             // only do processing if the state actually changed
             Log.v(TAG, "changeProxyState, newState: " + newState);
             proxyState = newState;
             if (controlCallback != null) {
                 try {
-                    controlCallback.proxyStateChanged(proxyState);
+                    controlCallback.proxyStateChanged(proxyState.ordinal());
                 } catch (RemoteException e) {
                     e.printStackTrace();
                 }
@@ -396,7 +400,7 @@ public class ProxyService extends Service {
                 IMQTTDroidNetCallback callback = packageToCallback.get(packageName);
                 if (refreshNetCallback(callback, packageName)) {
                     try {
-                        callback.proxyStateChanged(proxyState);
+                        callback.proxyStateChanged(proxyState.ordinal());
                     } catch (RemoteException e) {
                         e.printStackTrace();
                     }
@@ -423,11 +427,11 @@ public class ProxyService extends Service {
         }
 
         if (mqttClient == null || !mqttClient.isConnected()) {
-            if (proxyState == Utils.PROXY_STARTING || proxyState == Utils.PROXY_CONNECTED) {
+            if (proxyState == ProxyState.PROXY_STARTING || proxyState == ProxyState.PROXY_CONNECTED) {
                 if (receivedStop) {
-                    proxyState = Utils.PROXY_DISCONNECTED;
+                    proxyState = ProxyState.PROXY_DISCONNECTED;
                 } else {
-                    changeProxyState(Utils.PROXY_DISCONNECTED);
+                    changeProxyState(ProxyState.PROXY_DISCONNECTED);
                 }
             }
         }
@@ -458,7 +462,7 @@ public class ProxyService extends Service {
                 e.printStackTrace();
             }
         }
-        if (receivedStop || proxyState == Utils.PROXY_STOPPED) {
+        if (receivedStop || proxyState == ProxyState.PROXY_STOPPED) {
             return;
         }
 
@@ -526,10 +530,10 @@ public class ProxyService extends Service {
                 }
             }
         } catch (MqttSecurityException e) {
-            changeProxyState(Utils.PROXY_DISCONNECTED);
+            changeProxyState(ProxyState.PROXY_DISCONNECTED);
             e.printStackTrace();
         } catch (MqttException e) {
-            changeProxyState(Utils.PROXY_DISCONNECTED);
+            changeProxyState(ProxyState.PROXY_DISCONNECTED);
             switch (e.getReasonCode()) {
                 case MqttException.REASON_CODE_BROKER_UNAVAILABLE:
                 case MqttException.REASON_CODE_CLIENT_TIMEOUT:
@@ -541,7 +545,7 @@ public class ProxyService extends Service {
             }
         }
         if (mqttClient.isConnected()) {
-            changeProxyState(Utils.PROXY_CONNECTED);
+            changeProxyState(ProxyState.PROXY_CONNECTED);
         }
     }
 
@@ -648,7 +652,7 @@ public class ProxyService extends Service {
         @Override
         public void connectionLost(Throwable arg0) {
             Log.v(TAG, "connectionLost");
-            mHandler.sendMessage(mHandler.obtainMessage(MSG_PROXY_STATE_CHANGE, Utils.PROXY_DISCONNECTED));
+            mHandler.sendMessage(mHandler.obtainMessage(MSG_PROXY_STATE_CHANGE, ProxyState.PROXY_DISCONNECTED));
         }
 
         /**
@@ -691,7 +695,7 @@ public class ProxyService extends Service {
          *   An int matching Utils.PROXY_*.
          */
         public int getProxyState() {
-            return proxyState;
+            return proxyState.ordinal();
         }
 
         /**
@@ -717,7 +721,7 @@ public class ProxyService extends Service {
             Log.v(TAG, "registerCallback ");
             controlCallback = callback;
             try {
-                controlCallback.proxyStateChanged(proxyState);
+                controlCallback.proxyStateChanged(proxyState.ordinal());
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
@@ -738,9 +742,9 @@ public class ProxyService extends Service {
         public int getAuthState() {
             String packageName = Utils.getCallerPackage(pm);
             if (packageToAuthState.containsKey(packageName)) {
-                return packageToAuthState.get(packageName);
+                return packageToAuthState.get(packageName).ordinal();
             }
-            return Utils.APP_UNKNOWN;
+            return IMQTTDroidAuth.APP_UNKNOWN;
         }
 
         /**
@@ -750,7 +754,7 @@ public class ProxyService extends Service {
          *   An int matching Utils.PROXY_*.
          */
         public int getProxyState() {
-            return proxyState;
+            return proxyState.ordinal();
         }
 
         /**
@@ -763,8 +767,8 @@ public class ProxyService extends Service {
             String packageName = Utils.getCallerPackage(pm);
             if (packageToAuthState.containsKey(packageName)) {
                 Map<String, Integer> subs = new HashMap<>();
-                int authState = packageToAuthState.get(packageName);
-                if (authState == Utils.APP_ALLOWED) {
+                AuthState authState = packageToAuthState.get(packageName);
+                if (authState == AuthState.APP_ALLOWED) {
                     List<AppAuthSub> activeSubs = authDataSource.getActiveAuthSubsByPkg(packageName);
                     for (int i = 0; i < activeSubs.size(); ++i) {
                         subs.put(activeSubs.get(i).getTopic(), activeSubs.get(i).getQos());
@@ -790,8 +794,8 @@ public class ProxyService extends Service {
 
             String packageName = Utils.getCallerPackage(pm);
             if (packageToAuthState.containsKey(packageName)) {
-                int authState = packageToAuthState.get(packageName);
-                if (authState == Utils.APP_ALLOWED) {
+                AuthState authState = packageToAuthState.get(packageName);
+                if (authState == AuthState.APP_ALLOWED) {
                     SubscribeMsg msg = new SubscribeMsg(packageName, topic, qos);
                     mHandler.sendMessage(mHandler.obtainMessage(MSG_SUBSCRIBE, msg));
                     return true;
@@ -813,8 +817,8 @@ public class ProxyService extends Service {
 
             String packageName = Utils.getCallerPackage(pm);
             if (packageToAuthState.containsKey(packageName)) {
-                int authState = packageToAuthState.get(packageName);
-                if (authState == Utils.APP_ALLOWED) {
+                AuthState authState = packageToAuthState.get(packageName);
+                if (authState == AuthState.APP_ALLOWED) {
                     SubscribeMsg msg = new SubscribeMsg(packageName, topic, 0);
                     mHandler.sendMessage(mHandler.obtainMessage(MSG_UNSUBSCRIBE, msg));
                     return true;
@@ -845,14 +849,14 @@ public class ProxyService extends Service {
          *   broker the publish is refused and this method returns false.
          */
         public boolean publish(int id, String topic, byte[] payload, int qos, boolean retained) {
-            if (proxyState != Utils.PROXY_CONNECTED) {
+            if (proxyState != ProxyState.PROXY_CONNECTED) {
                 return false;
             }
             String packageName = Utils.getCallerPackage(pm);
             if (packageToAuthState.containsKey(packageName)) {
-                int authState = packageToAuthState.get(packageName);
+                AuthState authState = packageToAuthState.get(packageName);
                 Pattern pubPat = packageToPubPattern.get(packageName);
-                if (authState == Utils.APP_ALLOWED && pubPat.matcher(topic).matches()) {
+                if (authState == AuthState.APP_ALLOWED && pubPat.matcher(topic).matches()) {
                     PublishMsg msg = new PublishMsg(packageName, topic, id, payload, qos, retained);
                     mHandler.sendMessage(mHandler.obtainMessage(MSG_PUBLISH, msg));
                     return true;
@@ -872,16 +876,16 @@ public class ProxyService extends Service {
         public boolean registerNetCallback(IMQTTDroidNetCallback callback) {
             Log.v(TAG, "registerNetCallback ");
 
-            if (proxyState == Utils.PROXY_STOPPED) {
+            if (proxyState == ProxyState.PROXY_STOPPED) {
                 return false;
             }
             String packageName = Utils.getCallerPackage(pm);
 
             if (packageToAuthState.containsKey(packageName)) {
-                int authState = packageToAuthState.get(packageName);
+                AuthState authState = packageToAuthState.get(packageName);
                 Log.v(TAG, "registerNetCallback pkg: " + packageName + ", auth: " + authState);
 
-                if (authState == Utils.APP_ALLOWED) {
+                if (authState == AuthState.APP_ALLOWED) {
                     packageToCallback.put(packageName, callback);
 
                     if (packageName.equals(rcvPackage)) {
@@ -1018,7 +1022,7 @@ public class ProxyService extends Service {
                 case MSG_SUBSCRIBE:
                     Log.v(TAG, "Subscribe received");
                     SubscribeMsg smsg = (SubscribeMsg) msg.obj;
-                    if (handleSubscribe(smsg) && proxyState == Utils.PROXY_CONNECTED) {
+                    if (handleSubscribe(smsg) && proxyState == ProxyState.PROXY_CONNECTED) {
                         try {
                             IMqttToken token;
                             token = mqttClient.subscribe(smsg.getTopic(), smsg.getQos());
@@ -1050,7 +1054,7 @@ public class ProxyService extends Service {
                 case MSG_UNSUBSCRIBE:
                     Log.v(TAG, "Unsubscribe received");
                     SubscribeMsg umsg = (SubscribeMsg) msg.obj;
-                    if (handleUnsubscribe(umsg) && proxyState == Utils.PROXY_CONNECTED) {
+                    if (handleUnsubscribe(umsg) && proxyState == ProxyState.PROXY_CONNECTED) {
                         try {
                             IMqttToken token;
                             token = mqttClient.unsubscribe(umsg.getTopic());
@@ -1183,7 +1187,7 @@ public class ProxyService extends Service {
                     receivedStop = true;
                     connectionCheckTimer.cancel();
                     doDisconnect();
-                    changeProxyState(Utils.PROXY_STOPPED);
+                    changeProxyState(ProxyState.PROXY_STOPPED);
                     stopForeground(true);
                     stopSelf();
                     break;
@@ -1203,14 +1207,14 @@ public class ProxyService extends Service {
                     doDisconnect();
                     clearPackageMaps();
                     populatePackageMaps();
-                    proxyState = Utils.PROXY_STARTING;
+                    proxyState = ProxyState.PROXY_STARTING;
                     doConnect();
                     connectionCheck();
                     break;
 
                 case MSG_PROXY_STATE_CHANGE:
                     int newState = (int) msg.obj;
-                    changeProxyState(newState);
+                    changeProxyState(Utils.proxyStateIntToEnum(newState));
                     break;
 
                 default:
@@ -1266,10 +1270,10 @@ public class ProxyService extends Service {
         for (int i = 0; i < detailsList.size(); ++i) {
             AppAuthDetails authDetails = detailsList.get(i);
             String packageName = authDetails.getAppPackage();
-            int authStatus = authDetails.getAuthStatus();
+            AuthState authStatus = authDetails.getAuthStatus();
             packageToAuthState.put(packageName, authStatus);
 
-            if (authStatus == Utils.APP_ALLOWED) {
+            if (authStatus == AuthState.APP_ALLOWED) {
                 List<AppAuthPub> pubList = authDataSource.getAuthPubsByPkg(packageName);
                 Pattern pubPat = buildPubsPattern(pubList);
                 if (pubPat != null) {

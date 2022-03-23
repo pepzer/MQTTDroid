@@ -23,8 +23,10 @@ import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
 
+import com.tworx.eud.mqttdroid.AuthState;
 import com.tworx.eud.mqttdroid.IMQTTDroidAuth;
 import com.tworx.eud.mqttdroid.IMQTTDroidAuthCallback;
+import com.tworx.eud.mqttdroid.Utils;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -146,7 +148,7 @@ public class AuthService extends Service {
         try {
             Date date = new Date();
             dataSource.createAuthDetails(callerPackage, authRequest.getAppLabel(),
-                    date.getTime(), Utils.APP_REFUSED);
+                    date.getTime(), AuthState.APP_REFUSED);
             insert = true;
         } catch (SQLiteConstraintException e) {
             Log.w(TAG, "SQLiteConstraintException inserting " + callerPackage);

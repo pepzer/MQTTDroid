@@ -56,15 +56,19 @@
             android:name=".AuthService"
             android:enabled="true"
             android:exported="true"
-            android:permission="org.pepzer.mqttdroid.BIND_AUTH"
             android:process=":remote_auth" />
+        <!-- unable to use permissions within ATAK
+        android:permission="org.pepzer.mqttdroid.BIND_AUTH"
+        -->
 
         <service
             android:name=".ProxyService"
             android:enabled="true"
             android:exported="true"
-            android:permission="org.pepzer.mqttdroid.BIND_PROXY"
             android:process=":remote_proxy" />
+        <!-- unable to use permissions within ATAK
+        android:permission="org.pepzer.mqttdroid.BIND_PROXY"
+        -->
 
         <!-- Declaring broadcast receiver for BOOT_COMPLETED event. -->
         <receiver

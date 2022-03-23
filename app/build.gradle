@@ -3,7 +3,7 @@ apply plugin: 'com.android.application'
 
 ext.versionMajor = 1
 ext.versionMinor = 0
-ext.versionPatch = 0
+ext.versionPatch = 1
 
 def computeVersionName() {
     return String.format('%d.%d.%d', versionMajor, versionMinor, versionPatch)
@@ -22,7 +22,7 @@ android {
         versionCode 1
         versionName computeVersionName()
         versionCode computeVersionCode()
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     signingConfigs {
         jenkins {
@@ -52,13 +52,14 @@ dependencies {
     implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5'
     implementation 'androidx.appcompat:appcompat:1.4.1'
     implementation 'com.google.android.material:material:1.5.0'
-    testImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    })
-    testImplementation 'junit:junit:4.12'
-    testImplementation 'com.android.support:support-annotations:28.0.0'
-    testImplementation 'com.android.support.test:runner:0.5'
-    testImplementation 'com.android.support.test:rules:0.5'
+
+    testImplementation 'junit:junit:4.13.2'
+
+    androidTestImplementation 'androidx.test:runner:1.4.0'
+    androidTestImplementation 'androidx.test:rules:1.4.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     // Optional -- Hamcrest library
-    testImplementation 'org.hamcrest:hamcrest-library:1.3'
+    androidTestImplementation 'org.hamcrest:hamcrest:2.2'
+    androidTestImplementation 'org.hamcrest:hamcrest-library:2.2'
 }

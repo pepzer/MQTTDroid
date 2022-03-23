@@ -5,12 +5,12 @@
 
 package org.pepzer.mqttdroid;
 
+import static org.junit.Assert.assertArrayEquals;
+
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.regex.Pattern;
-
-import static org.junit.Assert.*;
 
 public class ProxyServiceTest {
 

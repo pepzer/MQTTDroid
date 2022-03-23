@@ -5,12 +5,14 @@
 
 package org.pepzer.mqttdroid.sqlite;
 
+import com.tworx.eud.mqttdroid.AuthState;
+
 public class AppAuthDetails {
     private long id;
     private String appPackage;
     private String appLabel;
     private long timestamp;
-    private int authStatus;
+    private AuthState authStatus;
 
     public AppAuthDetails() {}
 
@@ -54,11 +56,11 @@ public class AppAuthDetails {
         this.timestamp = timestamp;
     }
 
-    public int getAuthStatus() {
+    public AuthState getAuthStatus() {
         return authStatus;
     }
 
-    public void setAuthStatus(int authStatus) {
+    public void setAuthStatus(AuthState authStatus) {
         this.authStatus = authStatus;
     }
 

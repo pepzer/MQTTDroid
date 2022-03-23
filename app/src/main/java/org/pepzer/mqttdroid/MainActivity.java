@@ -48,6 +48,8 @@ import com.tworx.eud.mqttdroid.IMQTTDroidAuth;
 import com.tworx.eud.mqttdroid.IMQTTDroidAuthCallback;
 import com.tworx.eud.mqttdroid.IMQTTDroidCallback;
 import com.tworx.eud.mqttdroid.IMQTTDroidNet;
+import com.tworx.eud.mqttdroid.ProxyState;
+import com.tworx.eud.mqttdroid.Utils;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -64,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
         return authDataSource;
     }
 
-    private int proxyState = Utils.PROXY_STOPPED;
+    private ProxyState proxyState = ProxyState.PROXY_STOPPED;
 
     private CustomArrayAdapter adapter;
 
@@ -73,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
 
     private SharedPreferences sharedPreferences;
 
-    private Utils.SortBy sortBy = Utils.SortBy.NAME;
+    private AppUtils.SortBy sortBy = AppUtils.SortBy.NAME;
 
     private boolean filterShowAllowed = true;
     private MenuItem filterAllowed;
@@ -118,31 +120,31 @@ public class MainActivity extends AppCompatActivity {
      * @param changeSwitch
      *   True if the mainSwitch checked state must be updated.
      */
-    private void updateStatusUI(int state, boolean changeSwitch) {
-        if (changeSwitch && state != Utils.PROXY_STOPPED) {
+    private void updateStatusUI(ProxyState state, boolean changeSwitch) {
+        if (changeSwitch && state != ProxyState.PROXY_STOPPED) {
             mainSwitch.setChecked(true);
         }
         switch (state) {
-            case Utils.PROXY_CONNECTED:
+            case PROXY_CONNECTED:
                 proxyStatusTextView.setText(R.string.status_proxy_connected);
                 proxyStatusTextView.setBackgroundColor(getResources().getColor(R.color.colorConnected));
                 break;
-            case Utils.PROXY_DISCONNECTED:
+            case PROXY_DISCONNECTED:
                 proxyStatusTextView.setText(R.string.status_proxy_disconnected);
                 proxyStatusTextView.setBackgroundColor(getResources().getColor(R.color.colorDisconnected));
                 break;
-            case Utils.PROXY_STOPPED:
+            case PROXY_STOPPED:
                 if (changeSwitch) {
                     mainSwitch.setChecked(false);
                 }
                 proxyStatusTextView.setText(R.string.status_proxy_stopped);
                 proxyStatusTextView.setBackgroundColor(getResources().getColor(R.color.colorStopped));
                 break;
-            case Utils.PROXY_STARTING:
+            case PROXY_STARTING:
                 proxyStatusTextView.setText(R.string.status_proxy_starting);
                 proxyStatusTextView.setBackgroundColor(getResources().getColor(R.color.colorBusy));
                 break;
-            case Utils.PROXY_STOPPING:
+            case PROXY_STOPPING:
                 proxyStatusTextView.setText(R.string.status_proxy_stopping);
                 proxyStatusTextView.setBackgroundColor(getResources().getColor(R.color.colorBusy));
                 break;
@@ -164,7 +166,7 @@ public class MainActivity extends AppCompatActivity {
         Log.v(TAG, "onCreate");
         PreferenceManager.setDefaultValues(this, R.xml.mqtt_preferences, false);
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        if (sharedPreferences.getBoolean(Utils.PREF_FIRST_RUN, true)) {
+        if (sharedPreferences.getBoolean(AppUtils.PREF_FIRST_RUN, true)) {
             startActivity(new Intent(this, MqttSettingsActivity.class));
         }
 
@@ -192,7 +194,7 @@ public class MainActivity extends AppCompatActivity {
         authDataSource.open();
 
         doStartAuthService();
-        if (sharedPreferences.getBoolean(Utils.PREF_PROXY_ACTIVE, false)) {
+        if (sharedPreferences.getBoolean(AppUtils.PREF_PROXY_ACTIVE, false)) {
             doStartProxyService();
             doBindServices();
         } else {
@@ -213,17 +215,17 @@ public class MainActivity extends AppCompatActivity {
             public void onCheckedChanged(CompoundButton button, boolean checked) {
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 if (checked) {
-                    editor.putBoolean(Utils.PREF_PROXY_ACTIVE, true).commit();
-                    if (proxyState == Utils.PROXY_STOPPED) {
-                        updateStatusUI(Utils.PROXY_STARTING, false);
+                    editor.putBoolean(AppUtils.PREF_PROXY_ACTIVE, true).commit();
+                    if (proxyState == ProxyState.PROXY_STOPPED) {
+                        updateStatusUI(ProxyState.PROXY_STARTING, false);
                         doUnbindProxy();
                         doStartProxyService();
                         doBindProxy();
                     }
                 } else {
-                    editor.putBoolean(Utils.PREF_PROXY_ACTIVE, false).commit();
-                    if (proxyState != Utils.PROXY_STOPPED) {
-                        updateStatusUI(Utils.PROXY_STOPPING, false);
+                    editor.putBoolean(AppUtils.PREF_PROXY_ACTIVE, false).commit();
+                    if (proxyState != ProxyState.PROXY_STOPPED) {
+                        updateStatusUI(ProxyState.PROXY_STOPPING, false);
                         try {
                             proxyService.stopProxy();
                             doUnbindProxy();
@@ -350,7 +352,7 @@ public class MainActivity extends AppCompatActivity {
              */
             case R.id.action_sort_name:
                 item.setChecked(true);
-                sortBy = Utils.SortBy.NAME;
+                sortBy = AppUtils.SortBy.NAME;
                 adapter.sortItems(sortBy);
                 return true;
 
@@ -359,7 +361,7 @@ public class MainActivity extends AppCompatActivity {
              */
             case R.id.action_sort_package:
                 item.setChecked(true);
-                sortBy = Utils.SortBy.PACKAGE;
+                sortBy = AppUtils.SortBy.PACKAGE;
                 adapter.sortItems(sortBy);
                 return true;
 
@@ -368,7 +370,7 @@ public class MainActivity extends AppCompatActivity {
              */
             case R.id.action_sort_date:
                 item.setChecked(true);
-                sortBy = Utils.SortBy.DATE;
+                sortBy = AppUtils.SortBy.DATE;
                 adapter.sortItems(sortBy);
                 return true;
 
@@ -377,7 +379,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public Utils.SortBy getSortBy() {
+    public AppUtils.SortBy getSortBy() {
         return sortBy;
     }
 
@@ -420,12 +422,12 @@ public class MainActivity extends AppCompatActivity {
                 proxyService = IMQTTDroid.Stub.asInterface(netService.getControlBinder());
 
                 proxyService.registerCallback(proxyCallback);
-                proxyState = proxyService.getProxyState();
+                proxyState = Utils.proxyStateIntToEnum(proxyService.getProxyState());
                 mHandler.sendMessage(mHandler.obtainMessage(MSG_PROXY_STATE_CHANGE, proxyState));
 
-                if (sharedPreferences.getBoolean(Utils.PREF_CONFIG_CHANGE, false)) {
+                if (sharedPreferences.getBoolean(AppUtils.PREF_CONFIG_CHANGE, false)) {
                     SharedPreferences.Editor editor = sharedPreferences.edit();
-                    editor.putBoolean(Utils.PREF_CONFIG_CHANGE, false).commit();
+                    editor.putBoolean(AppUtils.PREF_CONFIG_CHANGE, false).commit();
                     restartProxyService();
                 }
             } catch (RemoteException e) {
@@ -581,7 +583,7 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         authDataSource.open();
         rePopulateListView();
-        if (sharedPreferences.getBoolean(Utils.PREF_PROXY_ACTIVE, false)) {
+        if (sharedPreferences.getBoolean(AppUtils.PREF_PROXY_ACTIVE, false)) {
             doBindServices();
         } else {
             doBindAuth();
@@ -601,7 +603,8 @@ public class MainActivity extends AppCompatActivity {
          * @param proxyState
          */
         public void proxyStateChanged(int proxyState) {
-            mHandler.sendMessage(mHandler.obtainMessage(MSG_PROXY_STATE_CHANGE, proxyState));
+            mHandler.sendMessage(mHandler.obtainMessage(MSG_PROXY_STATE_CHANGE,
+                    Utils.proxyStateIntToEnum(proxyState)));
         }
     };
 
@@ -629,7 +632,7 @@ public class MainActivity extends AppCompatActivity {
                  * Handle the proxy state change event by updating the UI.
                  */
                 case MSG_PROXY_STATE_CHANGE:
-                    proxyState = (int) msg.obj;
+                    proxyState = (ProxyState)msg.obj;
                     updateStatusUI(proxyState, true);
                     break;
 

@@ -5,9 +5,12 @@ plugins {
 
 ext.versionMajor = 1
 ext.versionMinor = 0
-ext.versionPatch = 0
+ext.versionPatch = 1
 
 def computeVersionName() {
+    def snapshotTag = ""
+    if (mavenRepoType == "snapshots")
+        snapshotTag = "-SNAPSHOT"
     return String.format('%d.%d.%d%s', versionMajor, versionMinor, versionPatch, snapshotTag)
 }
 

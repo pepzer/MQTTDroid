@@ -13,6 +13,9 @@ import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import com.tworx.eud.mqttdroid.AuthState;
+import com.tworx.eud.mqttdroid.Utils;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,13 +47,13 @@ public class AuthDataSource {
     }
 
     public long createAuthDetails(String appPackage, String appLabel,
-                                             long timestamp, int authStatus)
+                                             long timestamp, AuthState authStatus)
             throws SQLiteConstraintException {
         ContentValues values = new ContentValues();
         values.put(AuthSQLiteHelper.COLUMN_APP_PACKAGE, appPackage);
         values.put(AuthSQLiteHelper.COLUMN_APP_LABEL, appLabel);
         values.put(AuthSQLiteHelper.COLUMN_TIMESTAMP, timestamp);
-        values.put(AuthSQLiteHelper.COLUMN_AUTH_STATUS, authStatus);
+        values.put(AuthSQLiteHelper.COLUMN_AUTH_STATUS, authStatus.ordinal());
         long insertId = database.insertOrThrow(AuthSQLiteHelper.TABLE_AUTH_DETAILS, null,
                 values);
         return insertId;
@@ -68,7 +71,7 @@ public class AuthDataSource {
         values.put(AuthSQLiteHelper.COLUMN_APP_PACKAGE, authDetails.getAppPackage());
         values.put(AuthSQLiteHelper.COLUMN_APP_LABEL, authDetails.getAppLabel());
         values.put(AuthSQLiteHelper.COLUMN_TIMESTAMP, authDetails.getTimestamp());
-        values.put(AuthSQLiteHelper.COLUMN_AUTH_STATUS, authDetails.getAuthStatus());
+        values.put(AuthSQLiteHelper.COLUMN_AUTH_STATUS, authDetails.getAuthStatus().ordinal());
         int count = database.update(AuthSQLiteHelper.TABLE_AUTH_DETAILS, values,
                 AuthSQLiteHelper.COLUMN_ID + " = " + authDetails.getId(), null);
         return count;
@@ -131,7 +134,7 @@ public class AuthDataSource {
         authDetails.setAppPackage(cursor.getString(1));
         authDetails.setAppLabel(cursor.getString(2));
         authDetails.setTimestamp(cursor.getLong(3));
-        authDetails.setAuthStatus(cursor.getInt(4));
+        authDetails.setAuthStatus(Utils.authStateIntToEnum(cursor.getInt(4)));
         return authDetails;
     }
 

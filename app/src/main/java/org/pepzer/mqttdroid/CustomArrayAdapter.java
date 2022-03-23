@@ -24,6 +24,8 @@ import android.widget.ScrollView;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import com.tworx.eud.mqttdroid.AuthState;
+
 import org.pepzer.mqttdroid.sqlite.AppAuthDetails;
 import org.pepzer.mqttdroid.sqlite.AppAuthPub;
 import org.pepzer.mqttdroid.sqlite.AppAuthSub;
@@ -90,7 +92,7 @@ public class CustomArrayAdapter extends ArrayAdapter<AppAuthDetails> implements 
      * @param sortBy
      *   Enum representing the comparator to use.
      */
-    public void sortItems(Utils.SortBy sortBy) {
+    public void sortItems(AppUtils.SortBy sortBy) {
         switch (sortBy) {
             case NAME:
                 sort(comparatorName);
@@ -174,19 +176,18 @@ public class CustomArrayAdapter extends ArrayAdapter<AppAuthDetails> implements 
                     return results;
                 }
 
-                int appStatus;
                 for (int i = 0; i < count; ++i) {
                     final AppAuthDetails authDetails = values.get(i);
-                    appStatus = authDetails.getAuthStatus();
+                    AuthState appStatus = authDetails.getAuthStatus();
                     Log.v(TAG, "App: " + authDetails.getAppLabel() + ", status: " + appStatus);
                     switch (appStatus) {
-                        case Utils.APP_ALLOWED:
+                        case APP_ALLOWED:
                             if (showAllowed) {
                                 Log.v(TAG, "App allowed: " + authDetails.getAppLabel());
                                 filteredList.add(authDetails);
                             }
                             break;
-                        case Utils.APP_REFUSED:
+                        case APP_REFUSED:
                             if (showRefused) {
                                 Log.v(TAG, "App refused: " + authDetails.getAppLabel());
                                 filteredList.add(authDetails);
@@ -280,11 +281,11 @@ public class CustomArrayAdapter extends ArrayAdapter<AppAuthDetails> implements 
         Switch switch_button = (Switch) rowView.findViewById(R.id.switchButton);
 
         switch (item.getAuthStatus()) {
-            case Utils.APP_ALLOWED:
+            case APP_ALLOWED:
                 second_line.setText("Allowed");
                 switch_button.setChecked(true);
                 break;
-            case Utils.APP_REFUSED:
+            case APP_REFUSED:
                 if (isNew(item.getTimestamp())) {
                     second_line.setText("New");
                     rowView.setBackgroundColor(context.getResources().getColor(R.color.colorPending));
@@ -305,11 +306,11 @@ public class CustomArrayAdapter extends ArrayAdapter<AppAuthDetails> implements 
                 Log.v(TAG, "Item: " + item + " ,checked: " + checked);
 
                 if (checked) {
-                    item.setAuthStatus(Utils.APP_ALLOWED);
+                    item.setAuthStatus(AuthState.APP_ALLOWED);
                     rowView.setBackgroundColor(context.getResources().getColor(R.color.colorBg));
                     second_line.setText("Allowed");
                 } else {
-                    item.setAuthStatus(Utils.APP_REFUSED);
+                    item.setAuthStatus(AuthState.APP_REFUSED);
                     if (isNew(item.getTimestamp())) {
                         second_line.setText("New");
                         rowView.setBackgroundColor(context.getResources().getColor(R.color.colorPending));

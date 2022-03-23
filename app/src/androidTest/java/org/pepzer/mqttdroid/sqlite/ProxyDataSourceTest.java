@@ -5,15 +5,19 @@
 
 package org.pepzer.mqttdroid.sqlite;
 
+import android.content.Context;
+
+import androidx.test.InstrumentationRegistry;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertEquals;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
-import android.support.test.runner.AndroidJUnit4;
 import org.junit.runner.RunWith;
-import static org.hamcrest.Matchers.is;
-import android.content.Context;
-import android.support.test.InstrumentationRegistry;
 
 import java.util.Date;
 import java.util.List;

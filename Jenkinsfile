@@ -17,7 +17,7 @@ pipeline {
                 script {                    
                     docker.withRegistry("${TWORX_DOCKER_REPO}", "${registryCredentials}") {
                         docker.image("${androidSDKImageName}").inside {
-                            sh "./gradlew :mqttservice:bundleDebugAar :mqttservice:bundleReleaseAar"
+                            sh "./gradlew -PmavenRepoType=${mavenRepoType} :mqttservice:bundleDebugAar :mqttservice:bundleReleaseAar"
                         }
                     }
                 }
@@ -34,7 +34,7 @@ pipeline {
                                 def ipAddr = readFile(file: 'repo-ip.txt').replaceAll("[\n]","")
                                 def fileData = "tworxrepo=http://" + ipAddr + nexusRepoPath + mavenRepoType + "\ntworxrepoUser=" + nexusUser + "\ntworxrepoPwd=" + nexusPwd + "\n"
                                 writeFile(file: 'local.properties', text: fileData)
-                                sh "./gradlew :mqttservice:publishReleasePublicationToTworxrepoRepository"
+                                sh "./gradlew -PmavenRepoType=${mavenRepoType} :mqttservice:publishReleasePublicationToTworxrepoRepository"
                             }
                         }
                     }

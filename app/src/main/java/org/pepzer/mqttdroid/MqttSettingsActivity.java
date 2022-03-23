@@ -11,7 +11,6 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.widget.Toast;
 
 import org.pepzer.mqttdroid.sqlite.MqttConfig;
 import org.pepzer.mqttdroid.sqlite.ProxyDataSource;
@@ -43,9 +42,9 @@ public class MqttSettingsActivity extends PreferenceActivity
         addPreferencesFromResource(R.xml.mqtt_preferences);
         proxyDataSource = new ProxyDataSource(this);
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        if (sharedPreferences.getBoolean(Utils.PREF_FIRST_RUN, true)) {
+        if (sharedPreferences.getBoolean(AppUtils.PREF_FIRST_RUN, true)) {
             SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putBoolean(Utils.PREF_FIRST_RUN, false).commit();
+            editor.putBoolean(AppUtils.PREF_FIRST_RUN, false).commit();
         }
         summaryKeys = new String[] {"pref_client_id", "pref_username",
                 "pref_protocol", "pref_broker_addr", "pref_broker_port",
@@ -58,8 +57,8 @@ public class MqttSettingsActivity extends PreferenceActivity
         skipSummary.add("pref_custom_ca");
 
         skipAll = new HashSet<>();
-        skipAll.add(Utils.PREF_FIRST_RUN);
-        skipAll.add(Utils.PREF_CONFIG_CHANGE);
+        skipAll.add(AppUtils.PREF_FIRST_RUN);
+        skipAll.add(AppUtils.PREF_CONFIG_CHANGE);
 
         checkDB(sharedPreferences);
         updateSummary(sharedPreferences);
@@ -117,9 +116,9 @@ public class MqttSettingsActivity extends PreferenceActivity
             proxyDataSource.createMqttConfig(mqttConfig);
         } else {
             proxyDataSource.updateMqttConfig(mqttConfig);
-            if (!sharedPreferences.getBoolean(Utils.PREF_CONFIG_CHANGE, false)) {
+            if (!sharedPreferences.getBoolean(AppUtils.PREF_CONFIG_CHANGE, false)) {
                 SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putBoolean(Utils.PREF_CONFIG_CHANGE, true).commit();
+                editor.putBoolean(AppUtils.PREF_CONFIG_CHANGE, true).commit();
             }
 //            Toast.makeText(this, R.string.restart_to_apply,
 //                    Toast.LENGTH_SHORT).show();

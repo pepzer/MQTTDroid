@@ -5,17 +5,21 @@
 
 package org.pepzer.mqttdroid.sqlite;
 
+import android.content.Context;
+
+import androidx.test.InstrumentationRegistry;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertEquals;
+
+import com.tworx.eud.mqttdroid.AuthState;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
-import android.support.test.runner.AndroidJUnit4;
 import org.junit.runner.RunWith;
-import static org.hamcrest.Matchers.is;
-import android.content.Context;
-import android.support.test.InstrumentationRegistry;
-
-import org.pepzer.mqttdroid.Utils;
 
 import java.util.Date;
 import java.util.List;
@@ -62,7 +66,7 @@ public class AuthDataSourceTest {
         authDetails.setAppPackage(appPackage);
         authDetails.setAppLabel("Test App");
         authDetails.setTimestamp((new Date()).getTime());
-        authDetails.setAuthStatus(Utils.APP_REFUSED);
+        authDetails.setAuthStatus(AuthState.APP_REFUSED);
 
         long rowId = authDataSource.createAuthDetails(authDetails.getAppPackage(),
                 authDetails.getAppLabel(), authDetails.getTimestamp(),
@@ -73,7 +77,7 @@ public class AuthDataSourceTest {
 
         assertEqualsDetails(authDetailsDB, authDetails);
 
-        authDetails.setAuthStatus(Utils.APP_ALLOWED);
+        authDetails.setAuthStatus(AuthState.APP_ALLOWED);
         int count = authDataSource.updateAuthDetails(authDetails);
         assertThat(count, is(1));
 
