@@ -12,9 +12,7 @@ import android.content.Intent;
 public class BootReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
-
         Intent myIntent = new Intent(context, ProxyService.class);
-        context.startService(myIntent);
-
+        context.startForegroundService(myIntent);
     }
 }
