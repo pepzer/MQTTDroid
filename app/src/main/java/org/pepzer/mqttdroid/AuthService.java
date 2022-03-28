@@ -28,11 +28,13 @@ import com.tworx.eud.mqttdroid.IMQTTDroidAuth;
 import com.tworx.eud.mqttdroid.IMQTTDroidAuthCallback;
 import com.tworx.eud.mqttdroid.Utils;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.pepzer.mqttdroid.sqlite.AppAuthSub;
 import org.pepzer.mqttdroid.sqlite.AuthDataSource;
 
 public class AuthService extends Service {
@@ -172,6 +174,17 @@ public class AuthService extends Service {
         return insert;
     }
 
+    private List getAuthorizedSubTopics(String packageName) {
+        AuthDataSource dataSource = new AuthDataSource(this);
+        dataSource.open();
+        List<AppAuthSub> authSubList = dataSource.getAuthSubsByPkg(packageName);
+        List <String> returnList = new ArrayList<>();
+        for (AppAuthSub appAuthSub : authSubList) {
+            returnList.add(appAuthSub.getTopic());
+        }
+        return returnList;
+    }
+
     /**
      * Binder object for the client interface.
      */
@@ -195,6 +208,13 @@ public class AuthService extends Service {
             String callerLabel = getCallerLabel(pm, callerPackage);
             AuthRequest authRequest = new AuthRequest(callerPackage, callerLabel, topics, update);
             msgHandler.sendMessage(msgHandler.obtainMessage(MSG_NEW_AUTH_REQ, authRequest));
+        }
+
+        @Override
+        public List authTopics() throws RemoteException {
+            PackageManager pm = getApplicationContext().getPackageManager();
+            String callerPackage = Utils.getCallerPackage(pm);
+            return getAuthorizedSubTopics(callerPackage);
         }
 
         /**
@@ -297,6 +317,7 @@ public class AuthService extends Service {
                                 refreshCallback.newAuthRequest(authRequest.getAppPackage());
                             } catch (RemoteException e) {
                                 e.printStackTrace();
+                                refreshCallback = null;
                             }
                         }
                     }

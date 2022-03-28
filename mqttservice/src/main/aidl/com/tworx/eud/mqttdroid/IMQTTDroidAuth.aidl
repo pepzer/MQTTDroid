@@ -11,5 +11,6 @@ interface IMQTTDroidAuth {
     const int APP_UNKNOWN = 2;
 
     void authRequest(in Map topics, boolean update);
+    List authTopics();
     void registerCallback(IMQTTDroidAuthCallback callback);
 }
