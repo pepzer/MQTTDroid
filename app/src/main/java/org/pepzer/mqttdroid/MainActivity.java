@@ -546,6 +546,12 @@ public class MainActivity extends AppCompatActivity {
      */
     void doUnbindAuth() {
         if (authIsBound) {
+            try {
+                // reset the callback in this case
+                authService.registerCallback(null);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
             // Detach our existing connection.
             unbindService(authConnection);
             authIsBound = false;
