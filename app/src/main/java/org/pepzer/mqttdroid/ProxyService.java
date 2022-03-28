@@ -164,7 +164,7 @@ public class ProxyService extends Service {
     private String rcvPackage = "";
 
     private Timer connectionCheckTimer = null;
-    private int connectionCheckInterval = 30000;
+    private int connectionCheckInterval = 30000;  // 30 seconds
 
     private boolean receivedStop = false;
 
@@ -189,6 +189,7 @@ public class ProxyService extends Service {
                     }
                 } else if (infos[i].getTypeName().equalsIgnoreCase("WIFI")) {
                     if ((infos[i].isConnected() != hasWifi)) {
+                        Log.d(TAG, "Wifi state old: " + hasWifi + " new: " + infos[i].isConnected());
                         hasWifi = infos[i].isConnected();
                     }
                 }
@@ -311,8 +312,8 @@ public class ProxyService extends Service {
 
             @Override
             public void run() {
-                Log.v(TAG, "connectionCheck");
                 if (mqttClient != null) {
+                    Log.v(TAG, "connectionCheck, connected = " + mqttClient.isConnected());
                     if (mqttClient.isConnected()) {
                         changeProxyState(ProxyState.PROXY_CONNECTED);
                     } else {
@@ -389,6 +390,8 @@ public class ProxyService extends Service {
                     controlCallback.proxyStateChanged(proxyState.ordinal());
                 } catch (RemoteException e) {
                     e.printStackTrace();
+                    // remove object so it does not happen again
+                    controlCallback = null;
                 }
             }
 
@@ -451,16 +454,24 @@ public class ProxyService extends Service {
     private void doConnect(){
         Log.d(TAG, "doConnect()");
         if (mqttClient != null) {
+            Log.d(TAG, "mqttClient is present, closing");
             try {
-                mqttClient.disconnectForcibly();
+                if (mqttClient.isConnected()) {
+                    Log.d(TAG, "trying disconnect");
+                    mqttClient.disconnectForcibly();
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
             try {
+                Log.d(TAG, "trying close");
                 mqttClient.close();
             } catch (MqttException e) {
                 e.printStackTrace();
             }
+            Log.d(TAG, "done closing mqttClient");
+            // remove references
+            mqttClient = null;
         }
         if (receivedStop || proxyState == ProxyState.PROXY_STOPPED) {
             return;
@@ -488,7 +499,7 @@ public class ProxyService extends Service {
             options.setUserName(mqttConfig.getUsername());
             options.setPassword(mqttConfig.getPassword().toCharArray());
         }
-        int timeout = mqttConfig.getComplTimeout();
+        int timeout = mqttConfig.getComplTimeout() / 1000; // complTimeout stored in msec so convert
         options.setConnectionTimeout(timeout);
         options.setKeepAliveInterval(mqttConfig.getKeepalive());
 
@@ -499,8 +510,10 @@ public class ProxyService extends Service {
         try {
             mqttClient = new MqttAsyncClient(server, clientId, new MemoryPersistence());
             mqttClient.setCallback(new MqttEventCallback());
+            Log.v(TAG, "starting MQTT connection with timeout " + options.getConnectionTimeout());
             token = mqttClient.connect(options);
-            token.waitForCompletion(timeout);
+            token.waitForCompletion(mqttConfig.getComplTimeout());
+            Log.d(TAG, "done waiting for completion for MQTT connection");
 
             if (cleanSession) {
                 Iterator<String> iteratorSubs = subscriptions.iterator();
@@ -1213,8 +1226,8 @@ public class ProxyService extends Service {
                     break;
 
                 case MSG_PROXY_STATE_CHANGE:
-                    int newState = (int) msg.obj;
-                    changeProxyState(Utils.proxyStateIntToEnum(newState));
+                    ProxyState newState = (ProxyState) msg.obj;
+                    changeProxyState(newState);
                     break;
 
                 default:
