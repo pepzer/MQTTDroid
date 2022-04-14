@@ -183,13 +183,15 @@ public class ProxyService extends Service {
             NetworkInfo infos[] = mConnMan.getAllNetworkInfo();
 
             for (int i = 0; i < infos.length; i++) {
+                Log.d(TAG, "NetworkInfo name=" + infos[i].getTypeName());
                 if (infos[i].getTypeName().equalsIgnoreCase("MOBILE")) {
+                    Log.d(TAG, "Mobile state old: " + hasMobile + " new: " + infos[i].isConnected());
                     if((infos[i].isConnected() != hasMobile)){
                         hasMobile = infos[i].isConnected();
                     }
                 } else if (infos[i].getTypeName().equalsIgnoreCase("WIFI")) {
+                    Log.d(TAG, "Wifi state old: " + hasWifi + " new: " + infos[i].isConnected());
                     if ((infos[i].isConnected() != hasWifi)) {
-                        Log.d(TAG, "Wifi state old: " + hasWifi + " new: " + infos[i].isConnected());
                         hasWifi = infos[i].isConnected();
                     }
                 }
@@ -294,19 +296,25 @@ public class ProxyService extends Service {
         notifManager.notify(notifId, notifBuilder.setContentText(content).build());
     }
 
+    private void stopConnectionChecks() {
+        Log.v(TAG, "Stopping connection checks");
+        try {
+            if (connectionCheckTimer != null) {
+                connectionCheckTimer.cancel();
+                connectionCheckTimer = null;
+            }
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
+        }
+    }
+
     /**
      * Check the status of the mqtt client periodically, try to reconnect if disconnected.
      * Useful if first connection fails, if `Auto Reconnect` is unchecked in the settings or
      * when the client automatically reconnects but the proxy status isn't updated as well.
      */
     private void connectionCheck() {
-        try {
-            if (connectionCheckTimer != null) {
-                connectionCheckTimer.cancel();
-            }
-        } catch (IllegalStateException e) {
-            e.printStackTrace();
-        }
+        stopConnectionChecks();
         connectionCheckTimer = new Timer();
         connectionCheckTimer.schedule(new TimerTask() {
 
@@ -319,6 +327,7 @@ public class ProxyService extends Service {
                     } else {
                         changeProxyState(ProxyState.PROXY_DISCONNECTED);
                         boolean hasConnectivity = hasMobile || hasWifi;
+                        Log.i(TAG,"hasConnectivity=" + hasConnectivity + " receivedStop=" + receivedStop);
                         if (hasConnectivity && !receivedStop) {
                             doConnect();
                         }
@@ -338,13 +347,9 @@ public class ProxyService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.v(TAG, "onDestroy(), initialized: " + initialized);
+        Log.i(TAG, "onDestroy(), initialized: " + initialized);
         if (initialized) {
-            try {
-                connectionCheckTimer.cancel();
-            } catch (IllegalStateException e) {
-                e.printStackTrace();
-            }
+            stopConnectionChecks();
             authDataSource.close();
             proxyDataSource.close();
             unregisterReceiver(mqttBroadcastReceiver);
@@ -371,7 +376,7 @@ public class ProxyService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.v(TAG, "onStartCommand()");
+        Log.i(TAG, "onStartCommand()");
         return Service.START_STICKY;
     }
 
@@ -383,7 +388,7 @@ public class ProxyService extends Service {
     private void changeProxyState(ProxyState newState) {
         if (proxyState != newState) {
             // only do processing if the state actually changed
-            Log.v(TAG, "changeProxyState, newState: " + newState);
+            Log.d(TAG, "changeProxyState, newState: " + newState);
             proxyState = newState;
             if (controlCallback != null) {
                 try {
@@ -510,10 +515,10 @@ public class ProxyService extends Service {
         try {
             mqttClient = new MqttAsyncClient(server, clientId, new MemoryPersistence());
             mqttClient.setCallback(new MqttEventCallback());
-            Log.v(TAG, "starting MQTT connection with timeout " + options.getConnectionTimeout());
+            Log.d(TAG, "starting MQTT connection with timeout " + options.getConnectionTimeout());
             token = mqttClient.connect(options);
             token.waitForCompletion(mqttConfig.getComplTimeout());
-            Log.d(TAG, "done waiting for completion for MQTT connection");
+            Log.d(TAG, "done waiting for completion for MQTT connection, timeout=" + mqttConfig.getComplTimeout());
 
             if (cleanSession) {
                 Iterator<String> iteratorSubs = subscriptions.iterator();
@@ -521,7 +526,7 @@ public class ProxyService extends Service {
                 while (iteratorSubs.hasNext()) {
                     String topic = iteratorSubs.next();
                     token = mqttClient.subscribe(topic, subToQos.get(topic));
-                    token.waitForCompletion(timeout);
+                    token.waitForCompletion(mqttConfig.getComplTimeout());
                 }
             } else {
                 Set<String> unsubDiff = new HashSet<>(prevSubscriptions);
@@ -529,7 +534,7 @@ public class ProxyService extends Service {
                 Iterator<String> iteratorUnsub = unsubDiff.iterator();
                 while (iteratorUnsub.hasNext()) {
                     token = mqttClient.unsubscribe(iteratorUnsub.next());
-                    token.waitForCompletion(timeout);
+                    token.waitForCompletion(mqttConfig.getComplTimeout());
                 }
 
                 Set<String> subDiff = new HashSet<>(subscriptions);
@@ -539,13 +544,15 @@ public class ProxyService extends Service {
                 while (iteratorSubs.hasNext()) {
                     String topic = iteratorSubs.next();
                     token = mqttClient.subscribe(topic, subToQos.get(topic));
-                    token.waitForCompletion(timeout);
+                    token.waitForCompletion(mqttConfig.getComplTimeout());
                 }
             }
         } catch (MqttSecurityException e) {
+            Log.i(TAG, "Change state to disconnected in MqttSecurityException");
             changeProxyState(ProxyState.PROXY_DISCONNECTED);
             e.printStackTrace();
         } catch (MqttException e) {
+            Log.i(TAG, "Change state to disconnected in MqttException");
             changeProxyState(ProxyState.PROXY_DISCONNECTED);
             switch (e.getReasonCode()) {
                 case MqttException.REASON_CODE_BROKER_UNAVAILABLE:
@@ -664,7 +671,7 @@ public class ProxyService extends Service {
 
         @Override
         public void connectionLost(Throwable arg0) {
-            Log.v(TAG, "connectionLost");
+            Log.i(TAG, "connectionLost");
             mHandler.sendMessage(mHandler.obtainMessage(MSG_PROXY_STATE_CHANGE, ProxyState.PROXY_DISCONNECTED));
         }
 
@@ -690,7 +697,7 @@ public class ProxyService extends Service {
         @Override
         @SuppressLint("NewApi")
         public void messageArrived(String topic, final MqttMessage msg) throws Exception {
-            Log.i(TAG, "Message arrived from topic" + topic);
+            Log.d(TAG, "Message arrived from topic: " + topic);
             mHandler.sendMessage(mHandler.obtainMessage(MSG_ARRIVED, new MqttMsg(topic, msg)));
         }
     }
@@ -790,6 +797,18 @@ public class ProxyService extends Service {
                 }
             }
             return null;
+        }
+
+        /**
+         * Try to do a connection attempt now if not connected.
+         * @throws RemoteException
+         */
+        @Override
+        public void tryConnect() throws RemoteException {
+            Log.i(TAG, "tryConnect()");
+            if (proxyState == ProxyState.PROXY_DISCONNECTED) {
+                doConnect();
+            }
         }
 
         /**
@@ -1198,7 +1217,7 @@ public class ProxyService extends Service {
                  */
                 case MSG_STOP_PROXY:
                     receivedStop = true;
-                    connectionCheckTimer.cancel();
+                    stopConnectionChecks();
                     doDisconnect();
                     changeProxyState(ProxyState.PROXY_STOPPED);
                     stopForeground(true);
@@ -1212,11 +1231,7 @@ public class ProxyService extends Service {
                  */
                 case MSG_RESTART_PROXY:
                     Log.v(TAG, "MSG_RESTART_PROXY");
-//                    try {
-//                        connectionCheckTimer.cancel();
-//                    } catch (IllegalStateException e) {
-//                        e.printStackTrace();
-//                    }
+                    stopConnectionChecks();
                     doDisconnect();
                     clearPackageMaps();
                     populatePackageMaps();

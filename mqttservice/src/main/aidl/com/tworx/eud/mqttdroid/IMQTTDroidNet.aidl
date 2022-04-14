@@ -13,6 +13,7 @@ interface IMQTTDroidNet {
     const int PROXY_DISCONNECTED = 3;
     const int PROXY_STOPPING = 4;
 
+    void tryConnect();
     int getAuthState();
     int getProxyState();
     Map getActiveSubscriptions();
