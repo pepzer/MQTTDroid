@@ -350,6 +350,7 @@ public class ProxyService extends Service {
         Log.i(TAG, "onDestroy(), initialized: " + initialized);
         if (initialized) {
             stopConnectionChecks();
+            doDisconnect();
             authDataSource.close();
             proxyDataSource.close();
             unregisterReceiver(mqttBroadcastReceiver);
@@ -376,7 +377,7 @@ public class ProxyService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.i(TAG, "onStartCommand()");
+        Log.i(TAG, "onStartCommand(" + String.valueOf(flags) + "," + String.valueOf(startId) + ")");
         return Service.START_STICKY;
     }
 
@@ -408,6 +409,7 @@ public class ProxyService extends Service {
                 IMQTTDroidNetCallback callback = packageToCallback.get(packageName);
                 if (refreshNetCallback(callback, packageName)) {
                     try {
+                        Log.v(TAG, "attempting proxyStateChanged callback");
                         callback.proxyStateChanged(proxyState.ordinal());
                     } catch (RemoteException e) {
                         e.printStackTrace();
@@ -1067,6 +1069,7 @@ public class ProxyService extends Service {
                     callback = packageToCallback.get(smsg.getPackageName());
                     if (refreshNetCallback(callback, smsg.getPackageName())) {
                         try {
+                            Log.v(TAG,"attempting subscribeCallback");
                             callback.subscribeCallback(smsg.getTopic(), success);
                         } catch (RemoteException e) {
                             e.printStackTrace();
@@ -1099,6 +1102,7 @@ public class ProxyService extends Service {
                     callback = packageToCallback.get(umsg.getPackageName());
                     if (refreshNetCallback(callback, umsg.getPackageName())) {
                         try {
+                            Log.v(TAG,"attempting unsubscribeCallback");
                             callback.unsubscribeCallback(umsg.getTopic(), success);
                         } catch (RemoteException e) {
                             e.printStackTrace();
@@ -1216,6 +1220,7 @@ public class ProxyService extends Service {
                  * Inform all connected clients before the `stopSelf()`.
                  */
                 case MSG_STOP_PROXY:
+                    Log.i(TAG, "Shutting down proxy service");
                     receivedStop = true;
                     stopConnectionChecks();
                     doDisconnect();
@@ -1511,6 +1516,7 @@ public class ProxyService extends Service {
 
         if (refreshNetCallback(callback, sender)) {
             try {
+                Log.v(TAG, "Attempting publishCallback");
                 callback.publishCallback(msgDelivery.getTopic(), msgDelivery.getSenderMsgId(),
                         msgDelivery.isSuccess());
                 success = true;
@@ -1572,6 +1578,7 @@ public class ProxyService extends Service {
         IMQTTDroidNetCallback callback = packageToCallback.get(packageName);
         if (refreshNetCallback(callback, packageName)) {
             try {
+                Log.v(TAG, "attempting msgArrived callback");
                 callback.msgArrived(msg.getTopic(), msg.getMsgId(),
                         msg.getPayload(), msg.isDuplicate(), msg.isRetained());
                 success = true;
