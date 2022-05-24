@@ -674,6 +674,11 @@ public class ProxyService extends Service {
         @Override
         public void connectionLost(Throwable arg0) {
             Log.i(TAG, "connectionLost");
+            try {
+                mqttClient.close();
+            } catch (MqttException e) {
+                e.printStackTrace();
+            }
             mHandler.sendMessage(mHandler.obtainMessage(MSG_PROXY_STATE_CHANGE, ProxyState.PROXY_DISCONNECTED));
         }
 
