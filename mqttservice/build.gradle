@@ -4,8 +4,8 @@ plugins {
 }
 
 ext.versionMajor = 1
-ext.versionMinor = 0
-ext.versionPatch = 3
+ext.versionMinor = 1
+ext.versionPatch = 0
 
 def computeVersionName() {
     def snapshotTag = ""
