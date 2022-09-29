@@ -5,7 +5,7 @@ plugins {
 
 ext.versionMajor = 1
 ext.versionMinor = 1
-ext.versionPatch = 1
+ext.versionPatch = 2
 
 def computeVersionName() {
     def snapshotTag = ""
@@ -23,7 +23,7 @@ android {
     compileSdk 28
 
     defaultConfig {
-        minSdk 28
+        minSdk 21
         targetSdk 28
         versionName computeVersionName()
         versionCode computeVersionCode()
